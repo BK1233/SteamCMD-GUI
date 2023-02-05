@@ -432,11 +432,13 @@ Partial Class MainMenu
         Me.GroupBox6.Controls.Add(Me.Label6)
         Me.GroupBox6.Controls.Add(Me.Label8)
         Me.GroupBox6.Controls.Add(Me.Label5)
+        Me.Is64BitCheckBox = New System.Windows.Forms.CheckBox()
         Me.Is64BitCheckBox.Name = "Is64BitCheckBox"
         Me.Is64BitCheckBox.Text = "Use 64-bit executable"
         Me.Is64BitCheckBox.AutoSize = True
         Me.Is64BitCheckBox.Location = New System.Drawing.Point(10, 270)
         Me.GroupBox6.Controls.Add(Me.Is64BitCheckBox)
+        Me.Is64BitLabel = New System.Windows.Forms.Label()
         Me.Is64BitLabel.Name = "Is64BitLabel"
         Me.Is64BitLabel.Text = "Executable Options:"
         Me.Is64BitLabel.AutoSize = True

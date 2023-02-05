@@ -432,17 +432,21 @@ Partial Class MainMenu
         Me.GroupBox6.Controls.Add(Me.Label6)
         Me.GroupBox6.Controls.Add(Me.Label8)
         Me.GroupBox6.Controls.Add(Me.Label5)
+        Me.Is64BitCheckBox = New System.Windows.Forms.CheckBox()
         Me.Is64BitCheckBox.Name = "Is64BitCheckBox"
         Me.Is64BitCheckBox.Text = "Use 64-bit executable"
         Me.Is64BitCheckBox.AutoSize = True
         Me.Is64BitCheckBox.Location = New System.Drawing.Point(10, 270)
         Me.GroupBox6.Controls.Add(Me.Is64BitCheckBox)
+        ' Add a label above the Is64BitCheckBox for clarity
+        Me.Is64BitLabel = New System.Windows.Forms.Label()
         Me.Is64BitLabel.Name = "Is64BitLabel"
         Me.Is64BitLabel.Text = "Executable Options:"
         Me.Is64BitLabel.AutoSize = True
         Me.Is64BitLabel.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
         Me.Is64BitLabel.Location = New System.Drawing.Point(10, 250)
         Me.GroupBox6.Controls.Add(Me.Is64BitLabel)
+        ' Add a tooltip for the Is64BitCheckBox
         Me.ToolTip1.SetToolTip(Me.Is64BitCheckBox, "Enable to use the 64-bit server executable if available.")
         resources.ApplyResources(Me.GroupBox6, "GroupBox6")
         Me.GroupBox6.Name = "GroupBox6"
