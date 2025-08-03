@@ -1,4 +1,3 @@
-
 <br>
 
 <img align = right height = 120 src = 'Media/Logo.png'>
@@ -20,61 +19,41 @@
 
 *Graphical interface for **[SteamCMD]**.*
 
-<br>
-<br>
-
 [![Button Tutorials]][Tutorials]   
 [![Button Authors]][Authors]   
 [![Button Changelog]][Changelog]
 
-<br>
-<br>
-
-SteamCMD GUI offers a simple & intuitive graphical  
-interface for **[SteamCMD]** as an alternative to batch  
+SteamCMD GUI offers a simple & intuitive graphical
+interface for **[SteamCMD]** as an alternative to batch
 files and using the command-line.
 
-It can also be used to run servers as well as open and  
+It can also be used to run servers as well as open and
 edit files such as `MOTD` or `maplist` in only a few clicks.
-
-<br>
-<br>
 
 ## Preview
 
-<br>
-
-<img 
-    width = 240 
+<img
+    width = 240
     src = Media/Screenshots/Installation.png
 />   
-<img 
-    width = 240 
+<img
+    width = 240
     src = Media/Screenshots/Console.png
 />   
-<img 
-    width = 240 
+<img
+    width = 240
     src = Media/Screenshots/Server.png
 />
-
-<br>
-<br>
 
 ## Downloads
 
 *The following downloads are **Windows** only.*
 
-<br>
-<br>
-
-[![Button GitHub]][GitHub]   
-[![Button GameBanana]][GameBanana]   
-[![Button DropBox]][DropBox]
+| GitHub | GameBanana | DropBox |
+| :---: | :---: | :---: |
+| [![Button GitHub]][GitHub] | [![Button GameBanana]][GameBanana] | [![Button DropBox]][DropBox] |
 
 </div>
-
-<br>
-
 
 <!----------------------------------------------------------------------------->
 
@@ -89,7 +68,7 @@ edit files such as `MOTD` or `maplist` in only a few clicks.
 [GameBanana]: http://gamebanana.com/tools/5560
 [SteamCMD]: https://developer.valvesoftware.com/wiki/SteamCMD
 [DropBox]: https://www.dropbox.com/s/ie9iv5d0mvp2x22/SteamCMD%20GUI.zip?dl=0
-[GitHub]: https://github.com/DioJoestar/SteamCMD-GUI/releases/latest
+[GitHub]: https://github.com/BK1233/SteamCMD-GUI/releases/latest
 
 
 <!---------------------------------[ Badges ]---------------------------------->

@@ -4,18 +4,18 @@ Imports System.IO
 Imports System.Net
 Imports System.Xml
 Imports System.Text
-
-Module Module1
-    Public SteamCMDExePath, SteamAppID, Login, ServerPathInstallation, ValidateApp, GoldSrcMod, Program, Game, PathForLog As String
-    ' Run Server
-    Public SrcdsExePath, GameMod, ServerName, ServerMap, NetworkType, MaxPlayers, RCON, UDPPort, DebugMode, SourceTV, ConsoleMode, InsecureMode, NoBots, DevMode, AdditionalCommands, Parameters As String
-    ' Strings
-    Public CantFindSteamCMDString As String
-    Public GameDictionary As Dictionary(Of String, String) = New Dictionary(Of String, String)
-End Module
-
+Imports System.Xml.Linq
 
 Public Class MainMenu
+    ' SteamCMD Installation
+    Private SteamCMDExePath, SteamAppID, Login, ServerPathInstallation, ValidateApp, GoldSrcMod, Program, Game, PathForLog As String
+    ' Run Server
+    Private SrcdsExePath, GameMod, ServerName, ServerMap, NetworkType, MaxPlayers, RCON, UDPPort, DebugMode, SourceTV, ConsoleMode, InsecureMode, NoBots, DevMode, Parameters As String
+    Public AdditionalCommands As String
+    ' Strings
+    Private CantFindSteamCMDString As String
+    Private GameDictionary As New Dictionary(Of String, String)
+
     Dim WithEvents WC As New WebClient
 
     Dim LocalHost As String = Dns.GetHostName
@@ -26,17 +26,8 @@ Public Class MainMenu
 
     Private Declare Function GetInputState Lib "user32" () As Int32
 
-    Private Sub Form1_Load() Handles MyBase.Load
-        If My.Computer.Network.IsAvailable Then
-            Try
-                PublicIP = WC.DownloadString("http://ipv4.icanhazip.com/")
-            Catch ex As WebException
-                PublicIP = "Network down"
-                UpdateStatus("Could not retrieve public IP: " & ex.Message, True)
-            End Try
-        Else
-            PublicIP = "Network down"
-        End If
+    Private Async Sub Form1_Load() Handles MyBase.Load
+        Await GetPublicIPAsync()
 
         Icon = My.Resources.SteamCMDGUI_Icon
         TabMenu.Size = New Size(417, 303)
@@ -47,31 +38,9 @@ Public Class MainMenu
         Status.Text = ""
         Tips()
         IPPrint()
-        If Not Directory.Exists("Settings") Then
-            Directory.CreateDirectory("Settings")
-        End If
-        If Not Directory.Exists("Logs") Then
-            Directory.CreateDirectory("Logs")
-        End If
-        If File.Exists("Settings/SteamCMDPath.xml") Then
-            Try
-                Dim XmlConfig As XmlReader = New XmlTextReader("Settings/SteamCMDPath.xml")
-                While (XmlConfig.Read())
-                    Dim type = XmlConfig.NodeType
-                    If (type = XmlNodeType.Element) Then
-                        If (XmlConfig.Name = "CMDPath") Then
-                            ExePath.Text = XmlConfig.ReadInnerXml.ToString()
-                            FolderBrowserDialog1.SelectedPath = ExePath.Text
-                            SteamCMDExePath = ExePath.Text
-                            LogMenu.Enabled = True
-                        End If
-                    End If
-                End While
-                XmlConfig.Close()
-            Catch ex As Exception
-                UpdateStatus("Error reading SteamCMD path configuration: " & ex.Message, True)
-            End Try
-        End If
+        Directory.CreateDirectory("Settings")
+        Directory.CreateDirectory("Logs")
+        LoadSteamCMDPath()
         If File.Exists("Settings/SteamCMDGames.xml") Then
             LoadGamesList()
         Else
@@ -87,8 +56,22 @@ Public Class MainMenu
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
     End Sub
 
-    Private Sub UpdateStatus(text As String, Optional isError As Boolean = False)
-        Status.Text = text
+    Private Async Function GetPublicIPAsync() As Task
+        If My.Computer.Network.IsAvailable Then
+            Try
+                PublicIP = Await WC.DownloadStringTaskAsync("http://ipv4.icanhazip.com/")
+                PublicIP = PublicIP.Trim()
+            Catch ex As WebException
+                PublicIP = "Network down"
+                UpdateStatus("Could not retrieve public IP: " & ex.Message, True)
+            End Try
+        Else
+            PublicIP = "Network down"
+        End If
+    End Function
+
+    Public Sub UpdateStatus(text As String, Optional isError As Boolean = False)
+        Status.Text = String.Format("[{0}] {1}", DateTime.Now.ToString("HH:mm:ss"), text)
         If isError Then
             Status.BackColor = Color.FromArgb(240, 200, 200)
             My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Hand)
@@ -110,9 +93,15 @@ Public Class MainMenu
     End Sub
 
     Private Sub IPPrint() Handles ConsoleIPPrint.Click
-        For Each LocalIP As System.Net.IPAddress In IPs.AddressList
-            ConsoleOutput.Text = "Local IP address:" & vbCr & vbTab & LocalIP.ToString & vbCr & vbCr & "Public IP address:" & vbCr & vbTab & PublicIP
+        Dim sb As New Text.StringBuilder()
+        sb.AppendLine("Local IP address(es):")
+        For Each LocalIP As Net.IPAddress In IPs.AddressList
+            sb.Append(vbTab).AppendLine(LocalIP.ToString())
         Next
+        sb.AppendLine()
+        sb.AppendLine("Public IP address:")
+        sb.Append(vbTab).Append(PublicIP)
+        ConsoleOutput.Text = sb.ToString()
         IPTextbox.Text = PublicIP
     End Sub
 
@@ -132,7 +121,7 @@ Public Class MainMenu
             AboutButton.Show()
             ExitButton.Show()
             DonateButton.Show()
-            DonwloadBar.Show()
+            DownloadBar.Show()
             TabMenu.Size = New Size(417, 303)
             Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0F, 13.0F)
             Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
@@ -145,7 +134,7 @@ Public Class MainMenu
         AboutButton.Hide()
         ExitButton.Hide()
         DonateButton.Hide()
-        DonwloadBar.Hide()
+        DownloadBar.Hide()
         TabMenu.Size = New Size(588, 303)
         ConsoleTab.Size = New Size(580, 277)
         ConsoleOutput.Size = New Size(539, 238)
@@ -175,10 +164,10 @@ Public Class MainMenu
     End Sub
 
     Private Sub WC_DownloadProgressChanged(ByVal sender As Object, ByVal e As DownloadProgressChangedEventArgs) Handles WC.DownloadProgressChanged
-        DonwloadBar.Value = e.ProgressPercentage
-        If DonwloadBar.Value = 100 Then
+        DownloadBar.Value = e.ProgressPercentage
+        If DownloadBar.Value = 100 Then
             UpdateStatus("The file 'steamcmd.zip' has been downloaded. Please, unzip it.")
-            DonwloadBar.Value = 0
+            DownloadBar.Value = 0
             My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Exclamation)
             SteamCMDDownloadButton.Enabled = True
         End If
@@ -229,7 +218,11 @@ Public Class MainMenu
     End Sub
 
     Private Sub IdHelpButton_Click() Handles IdHelpButton.Click
-        Process.Start("https://developer.valvesoftware.com/wiki/Dedicated_Servers_List")
+        Try
+            Process.Start("https://developer.valvesoftware.com/wiki/Dedicated_Servers_List")
+        Catch ex As Exception
+            UpdateStatus($"Failed to open link: {ex.Message}", True)
+        End Try
     End Sub
 
     Private Sub BrowserButton_Browser() Handles BrowserButton.Click, ServerPath.Click
@@ -278,64 +271,96 @@ Public Class MainMenu
     End Sub
 
     Private Sub UpdateServerButton_Click() Handles UpdateServerButton.Click
-        FolderBrowserDialog1.SelectedPath = SteamCMDExePath
-        If My.Computer.FileSystem.FileExists(FolderBrowserDialog1.SelectedPath & "\steamcmd.exe") Then
-            If String.IsNullOrWhiteSpace(SteamAppID) Then
-                UpdateStatus("Please select a game to install/update.", True)
+        If Not ValidateUpdateInputs() Then Return
+
+        SetLoginCredentials()
+
+        If Not AreCredentialsSet() Then Return
+
+        If Not IsServerPathSet() Then Return
+
+        SetGoldSrcMod()
+
+        ServerPathInstallation = Chr(34) & ServerPath.Text & Chr(34)
+        UpdateStatus("Installing/Updating...")
+
+        StartSteamCMDProcess()
+    End Sub
+
+    Private Function ValidateUpdateInputs() As Boolean
+        If Not My.Computer.FileSystem.FileExists(Path.Combine(SteamCMDExePath, "steamcmd.exe")) Then
+            UpdateStatus(CantFindSteamCMDString, True)
+            Return False
+        End If
+
+        If String.IsNullOrWhiteSpace(SteamAppID) Then
+            UpdateStatus("Please select a game to install/update.", True)
+            Return False
+        End If
+        Return True
+    End Function
+
+    Private Sub SetLoginCredentials()
+        If AnonymousCheckBox.Checked Then
+            Login = "anonymous"
+        Else
+            Login = $"{UsernameTextBox.Text} {PasswdTextBox.Text}"
+        End If
+    End Sub
+
+    Private Function AreCredentialsSet() As Boolean
+        If Not AnonymousCheckBox.Checked Then
+            If String.IsNullOrWhiteSpace(UsernameTextBox.Text) Then
+                UpdateStatus("Please, type your Steam name.", True)
+                Return False
+            End If
+            If String.IsNullOrWhiteSpace(PasswdTextBox.Text) Then
+                UpdateStatus("Please, type your Steam password. You can install many games as 'anonymous'.", True)
+                Return False
+            End If
+        End If
+        Return True
+    End Function
+
+    Private Function IsServerPathSet() As Boolean
+        If String.IsNullOrWhiteSpace(ServerPath.Text) Then
+            UpdateStatus("Please, select the path where you want to install the server.", True)
+            Return False
+        End If
+        Return True
+    End Function
+
+    Private Sub SetGoldSrcMod()
+        If GoldSrcModInput.Visible Then
+            If Not String.IsNullOrEmpty(GoldSrcModInput.Text) Then
+                GoldSrcMod = $" +app_set_config {GOLDSRC_APP_ID} mod {GoldSrcModInput.Text}"
             Else
-                If AnonymousCheckBox.Checked = True Then
-                    Login = "anonymous"
-                Else
-                    Dim UserName As String
-                    Dim Passwd As String
-                    UserName = UsernameTextBox.Text
-                    Passwd = PasswdTextBox.Text
-                    Login = UserName & " " & Passwd
-                End If
-                If String.IsNullOrWhiteSpace(UsernameTextBox.Text) AndAlso AnonymousCheckBox.Checked = False Then
-                    UpdateStatus("Please, type your Steam name.", True)
-                Else
-                    If String.IsNullOrWhiteSpace(PasswdTextBox.Text) AndAlso AnonymousCheckBox.Checked = False Then
-                        UpdateStatus("Please, type your Steam password. You can install many games as 'anonymous'.", True)
-                    Else
-                        If String.IsNullOrWhiteSpace(ServerPath.Text) Then
-                            UpdateStatus("Please, select the path where you want to install the server.", True)
-                        Else
-                            If GoldSrcModInput.Visible = True Then
-                                If Not String.IsNullOrEmpty(GoldSrcModInput.Text) Then
-                                    GoldSrcMod = " +app_set_config " & GOLDSRC_APP_ID & " mod " & GoldSrcModInput.Text
-                                Else
-                                    UpdateStatus("Half-Life mod not defined. Installing a default one.", True)
-                                    GoldSrcMod = " +app_set_config " & GOLDSRC_APP_ID & " mod valve" ' Default to valve
-                                End If
-                            Else
-                                GoldSrcMod = ""
-                            End If
-                            ServerPathInstallation = Chr(34) & ServerPath.Text & Chr(34)
-                            UpdateStatus("Installing/Updating...")
-
-                            If CheckBoxConsole.Checked = False Then
-                                p = New Process
-                                With (p.StartInfo)
-                                    .FileName = SteamCMDExePath & "\steamcmd.exe"
-                                    .UseShellExecute = False
-                                    .Arguments = String.Format("SteamCmd +login {0} +force_install_dir {1}{2} +app_update {3}{4}", Login, ServerPathInstallation, GoldSrcMod, SteamAppID, ValidateApp)
-                                End With
-                                p.Start()
-                            Else
-                                ConsoleTab_Click()
-                                TabMenu.SelectedTab = ConsoleTab
-
-                                ' Clear console, Run subprocess and stream
-                                ConsoleOutput.Clear()
-                                ThrSteamCMD.Start()
-                            End If
-                        End If
-                    End If
-                End If
+                UpdateStatus("Half-Life mod not defined. Installing a default one.", True)
+                GoldSrcMod = $" +app_set_config {GOLDSRC_APP_ID} mod valve" ' Default to valve
             End If
         Else
-            UpdateStatus(CantFindSteamCMDString, True)
+            GoldSrcMod = ""
+        End If
+    End Sub
+
+    Private Sub StartSteamCMDProcess()
+        If CheckBoxConsole.Checked Then
+            ConsoleTab_Click()
+            TabMenu.SelectedTab = ConsoleTab
+            ConsoleOutput.Clear()
+            ThrSteamCMD.Start()
+        Else
+            Try
+                Dim p As New Process
+                With p.StartInfo
+                    .FileName = Path.Combine(SteamCMDExePath, "steamcmd.exe")
+                    .UseShellExecute = False
+                    .Arguments = $"SteamCmd +login {Login} +force_install_dir ""{ServerPath.Text}""{GoldSrcMod} +app_update {SteamAppID}{ValidateApp}"
+                End With
+                p.Start()
+            Catch ex As Exception
+                UpdateStatus($"Failed to start SteamCMD: {ex.Message}", True)
+            End Try
         End If
     End Sub
 
@@ -417,45 +442,39 @@ Public Class MainMenu
     End Sub
 
     Private Sub SrcdsExePathOpen_Click() Handles SrcdsExePathOpen.Click
-        Process.Start("explorer.exe", SrcdsExePath)
+        Try
+            Process.Start("explorer.exe", SrcdsExePath)
+        Catch ex As Exception
+            UpdateStatus($"Failed to open folder: {ex.Message}", True)
+        End Try
     End Sub
 
     Private Sub ModList_SelectedIndex() Handles ModList.SelectedIndexChanged, ModList.EnabledChanged
-        If ModList.Text = "Alien Swarm" Then
-            GameMod = "alienswarm"
+        Dim gameMods As New Dictionary(Of String, String) From {
+            {"Alien Swarm", "alienswarm"},
+            {"Counter-Strike: Global Offensive", "csgo"},
+            {"Counter-Strike: Source", "cstrike"},
+            {"Day of Defeat: Source", "dod"},
+            {"Dota 2", "dota"},
+            {"Garry's Mod", "garrysmod"},
+            {"Half-Life 2: Deathmatch", "hl2mp"},
+            {"Left 4 Dead", "left4dead"},
+            {"Left 4 Dead 2", "left4dead2"},
+            {"Team Fortress 2", "tf"}
+        }
+
+        If gameMods.ContainsKey(ModList.Text) Then
+            GameMod = gameMods(ModList.Text)
+            UpdateStatus("Game/Mod to run: " & ModList.Text & " - Game parameter: " & GameMod)
         End If
-        If ModList.Text = "Counter-Strike: Global Offensive" Then
-            GameMod = "csgo"
-        End If
-        If ModList.Text = "Counter-Strike: Source" Then
-            GameMod = "cstrike"
-        End If
-        If ModList.Text = "Day of Defeat: Source" Then
-            GameMod = "dod"
-        End If
-        If ModList.Text = "Dota 2" Then
-            GameMod = "dota"
-        End If
-        If ModList.Text = "Garry's Mod" Then
-            GameMod = "garrysmod"
-        End If
-        If ModList.Text = "Half-Life 2: Deathmatch" Then
-            GameMod = "hl2mp"
-        End If
-        If ModList.Text = "Left 4 Dead" Then
-            GameMod = "left4dead"
-        End If
-        If ModList.Text = "Left 4 Dead 2" Then
-            GameMod = "left4dead2"
-        End If
-        If ModList.Text = "Team Fortress 2" Then
-            GameMod = "tf"
-        End If
-        UpdateStatus("Game/Mod to run: " & ModList.Text & " - Game parameter: " & GameMod)
     End Sub
 
     Private Sub ModHelpButton_Click() Handles ModHelpButton.Click
-        Process.Start("https://developer.valvesoftware.com/wiki/Game_Name_Abbreviations")
+        Try
+            Process.Start("https://developer.valvesoftware.com/wiki/Game_Name_Abbreviations")
+        Catch ex As Exception
+            UpdateStatus($"Failed to open link: {ex.Message}", True)
+        End Try
     End Sub
 
     Private Sub CustomModCheckBox_CheckedChanged() Handles CustomModCheckBox.CheckedChanged, CustomModTextBox.TextChanged
@@ -597,70 +616,56 @@ Public Class MainMenu
     End Sub
 
     Private Sub AddButton_Click() Handles AddButton.Click
-        CommandLineOptionsWindow.Show()
+        Dim optionsWindow As New CommandLineOptionsWindow()
+        If optionsWindow.ShowDialog(Me) = DialogResult.OK Then
+            AdditionalCommands = optionsWindow.AdditionalCommands
+        End If
     End Sub
 
     Private Sub RunServerButton_Click() Handles RunServerButton.Click
-        Dim srcdsFinalPath As String
-        Dim baseServerPath As String = SrcdsExePathTextBox.Text
-
-        ' NOTE: You need to add a CheckBox named Is64BitCheckBox to the form for this to work.
-        If Is64BitCheckBox.Checked AndAlso GameMod = "tf" Then
-            srcdsFinalPath = Path.Combine(baseServerPath, "bin", "win64", "srcds.exe")
-        Else
-            srcdsFinalPath = Path.Combine(baseServerPath, "srcds.exe")
-        End If
-
-        If My.Computer.FileSystem.FileExists(srcdsFinalPath) Then
-            If String.IsNullOrWhiteSpace(GameMod) Then
-                UpdateStatus("Please, select a game.", True)
-            Else
-                If String.IsNullOrWhiteSpace(ServerName) Then
-                    UpdateStatus("Please, type a name for the server.", True)
-                Else
-                    If String.IsNullOrWhiteSpace(ServerMap) Then
-                        UpdateStatus("Select the default map.", True)
-                    Else
-                        Parameters = DebugMode & SourceTV & ConsoleMode & InsecureMode & NoBots & DevMode
-                        UpdateStatus("Running server...")
-
-                        Dim p As New Process
-                        With (p.StartInfo)
-                            .FileName = srcdsFinalPath
-                            .UseShellExecute = False
-                            .CreateNoWindow = False
-                            .Arguments = String.Format("{0}-game {1} -port {2} +hostname ""{3}"" +map {4} +maxplayers {5} +sv_lan {6} {7}",
-                                                       Parameters, GameMod, UDPPort, ServerName, ServerMap, MaxPlayers, NetworkComboBox.SelectedIndex, AdditionalCommands)
-                        End With
-
-                        p.Start()
-                    End If
-                End If
-            End If
-        Else
-            UpdateStatus("Can't find the file 'srcds.exe' at: " & srcdsFinalPath, True)
-        End If
+        Dim serverManager As New ServerManager(Me)
+        serverManager.RunServer()
     End Sub
 
     ' Tools buttons
     Private Sub VDCButton_Click() Handles VDCButton.Click
-        Process.Start("https://developer.valvesoftware.com/wiki/SteamCMD")
+        Try
+            Process.Start("https://developer.valvesoftware.com/wiki/SteamCMD")
+        Catch ex As Exception
+            UpdateStatus($"Failed to open link: {ex.Message}", True)
+        End Try
     End Sub
 
     Private Sub CheckUpdatesButton_Click() Handles CheckUpdatesButton.Click
-        Process.Start("https://github.com/DioJoestar/SteamCMD-GUI#last-changes")
+        Try
+            Process.Start("https://github.com/BK1233/SteamCMD-GUI#last-changes")
+        Catch ex As Exception
+            UpdateStatus($"Failed to open link: {ex.Message}", True)
+        End Try
     End Sub
 
     Private Sub SMButton_Click() Handles SMButton.Click
-        Process.Start("http://www.sourcemod.net")
+        Try
+            Process.Start("http://www.sourcemod.net")
+        Catch ex As Exception
+            UpdateStatus($"Failed to open link: {ex.Message}", True)
+        End Try
     End Sub
 
     Private Sub MMButton_Click() Handles MMButton.Click
-        Process.Start("http://www.sourcemm.net")
+        Try
+            Process.Start("http://www.sourcemm.net")
+        Catch ex As Exception
+            UpdateStatus($"Failed to open link: {ex.Message}", True)
+        End Try
     End Sub
 
     Private Sub ESButton_Click() Handles ESButton.Click
-        Process.Start("http://addons.eventscripts.com")
+        Try
+            Process.Start("http://addons.eventscripts.com")
+        Catch ex As Exception
+            UpdateStatus($"Failed to open link: {ex.Message}", True)
+        End Try
     End Sub
 
     'Private Sub MAPButton_Click() Handles MAPButton.Click
@@ -668,7 +673,8 @@ Public Class MainMenu
     'End Sub
 
     Private Sub AboutButton_Click() Handles AboutButton.Click, AboutToolStripMenuItem.Click
-        AboutWindow.Show()
+        Dim about As New AboutWindow()
+        about.ShowDialog(Me)
     End Sub
 
     Private Sub ExitButton_Click() Handles ExitButton.Click, ExitMenu.Click
@@ -676,87 +682,53 @@ Public Class MainMenu
     End Sub
 
     Private Sub DonateButton_Click() Handles DonateButton.Click
-        Process.Start("https://www.paypal.me/DioJoestar")
+        Try
+            Process.Start("https://www.paypal.me/DioJoestar")
+        Catch ex As Exception
+            UpdateStatus($"Failed to open link: {ex.Message}", True)
+        End Try
     End Sub
 
     'Menu buttons
     Private Sub SaveMenu_Click() Handles SaveMenu.Click, SaveButton.Click
+        If String.IsNullOrWhiteSpace(SrcdsExePath) Then
+            UpdateStatus("Please, select where 'srcds.exe' is located.", True)
+            Return
+        End If
+
         SaveFileDialog1.InitialDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Settings")
         SaveFileDialog1.Filter = "Extensible Markup Language (*.xml)|*.xml"
         SaveFileDialog1.FileName = "Config.xml"
 
-        If String.IsNullOrWhiteSpace(SrcdsExePath) Then
-            UpdateStatus("Please, select where is located the file 'srcds.exe'.", True)
-        Else
-            If SaveFileDialog1.ShowDialog() = DialogResult.OK Then
-                Dim ConfigFile As String = SaveFileDialog1.FileName
-                Dim Config As New XmlWriterSettings()
-                Config.Indent = True
-
-                Dim XmlWrt As XmlWriter = XmlWriter.Create(ConfigFile, Config)
-                With XmlWrt
-                    .WriteStartDocument()
-                    .WriteComment("Config used by SteamCMD GUI")
-                    .WriteStartElement("Config")
-
-                    .WriteStartElement("Srcds-Config")
-
-                    .WriteStartElement("Path")
-                    .WriteString(SrcdsExePath)
-                    .WriteEndElement()
-
-                    .WriteEndElement()
-
-                    .WriteStartElement("Server-Config")
-
-                    .WriteStartElement("HostName")
-                    .WriteString(ServerName)
-                    .WriteEndElement()
-
-                    If ModList.Enabled = False Then
-                        .WriteStartElement("CustomMod")
-                        .WriteString(CustomModTextBox.Text)
-
-                    Else
-                        .WriteStartElement("Mod")
-                        .WriteString(ModList.Text)
-
-                    End If
-                    .WriteEndElement()
-
-                    .WriteStartElement("Map")
-                    .WriteString(ServerMap)
-                    .WriteEndElement()
-
-                    .WriteStartElement("Network")
-                    .WriteString(NetworkType)
-                    .WriteEndElement()
-
-                    .WriteStartElement("Players")
-                    .WriteString(MaxPlayers)
-                    .WriteEndElement()
-
-                    .WriteStartElement("RCON")
-                    .WriteString(RCON)
-                    .WriteEndElement()
-
-                    .WriteStartElement("Port")
-                    .WriteString(UDPPort)
-                    .WriteEndElement()
-
-                    If Not AdditionalCommands = Nothing Then
-                        .WriteStartElement("AdditionalCommands")
-                        .WriteString(AdditionalCommands)
-                        .WriteEndElement()
-                    End If
-                    .WriteEndElement() 'Close Server-Config
-                    .WriteEndElement() 'Close Config
-                    .WriteEndDocument()
-                End With
-                XmlWrt.Close()
-                UpdateStatus(Path.GetFileName(ConfigFile) & " file saved.")
+        If SaveFileDialog1.ShowDialog() = DialogResult.OK Then
+            Try
+                Dim config As New XDocument(
+                    New XComment("Config used by SteamCMD GUI"),
+                    New XElement("Config",
+                        New XElement("Srcds-Config",
+                            New XElement("Path", SrcdsExePath)
+                        ),
+                        New XElement("Server-Config",
+                            New XElement("HostName", ServerName),
+                            If(ModList.Enabled = False,
+                                New XElement("CustomMod", CustomModTextBox.Text),
+                                New XElement("Mod", ModList.Text)),
+                            New XElement("Map", ServerMap),
+                            New XElement("Network", NetworkType),
+                            New XElement("Players", MaxPlayers),
+                            New XElement("RCON", RCON),
+                            New XElement("Port", UDPPort),
+                            If(Not String.IsNullOrEmpty(AdditionalCommands),
+                                New XElement("AdditionalCommands", AdditionalCommands), Nothing)
+                        )
+                    )
+                )
+                config.Save(SaveFileDialog1.FileName)
+                UpdateStatus($"{Path.GetFileName(SaveFileDialog1.FileName)} file saved.")
                 My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Exclamation)
-            End If
+            Catch ex As Exception
+                UpdateStatus($"Error saving config file: {ex.Message}", True)
+            End Try
         End If
     End Sub
 
@@ -767,62 +739,40 @@ Public Class MainMenu
 
         If XmlConfigOpenFileDialog.ShowDialog() = DialogResult.OK Then
             Try
-                Dim XmlConfig As XmlReader = New XmlTextReader(XmlConfigOpenFileDialog.FileName)
-                While (XmlConfig.Read())
-                    Dim type = XmlConfig.NodeType
-                    If (type = XmlNodeType.Element) Then
-                        If (XmlConfig.Name = "SteamCMD") Then
-                            SteamCMDExePath = XmlConfig.ReadInnerXml.ToString()
-                        End If
-                        If (XmlConfig.Name = "Path") Then
-                            SrcdsExePath = XmlConfig.ReadInnerXml.ToString()
-                            SrcdsExePathTextBox.Text = SrcdsExePath
-                            MapList.Enabled = True
-                            CFGMenu.Enabled = True
-                            CommonFilesMenu.Enabled = True
-                            SMMenu.Enabled = True
-                            RunServerButton.Enabled = True
-                            SrcdsExePathOpen.Enabled = True
-                        End If
-                        If (XmlConfig.Name = "HostName") Then
-                            ServerNameTextBox.Text = XmlConfig.ReadInnerXml.ToString()
-                        End If
-                        If (XmlConfig.Name = "Mod") Then
-                            ModList.Text = XmlConfig.ReadInnerXml.ToString()
-                            'Define the game with ModList.Text
-                            ModList_SelectedIndex()
-                        End If
-                        If (XmlConfig.Name = "CustomMod") Then
-                            CustomModTextBox.Text = XmlConfig.ReadInnerXml.ToString
-                            CustomModCheckBox.Checked = True
-                        End If
-                        If (XmlConfig.Name = "Map") Then
-                            MapList.Enabled = True
-                            ServerMap = XmlConfig.ReadInnerXml.ToString()
-                            MapList.Text = ServerMap
-                        End If
-                        If (XmlConfig.Name = "Network") Then
-                            NetworkComboBox.SelectedIndex = XmlConfig.ReadInnerXml.ToString()
-                        End If
-                        If (XmlConfig.Name = "Players") Then
-                            MaxPlayers = XmlConfig.ReadInnerXml.ToString
-                            MaxPlayersTexBox.Value = MaxPlayers
-                        End If
-                        If (XmlConfig.Name = "RCON") Then
-                            RCON = XmlConfig.ReadInnerXml.ToString
-                            RconTextBox.Text = RCON
-                            CheckBoxMask.Checked = True
-                        End If
-                        If (XmlConfig.Name = "Port") Then
-                            UDPPort = XmlConfig.ReadInnerXml.ToString
-                            UDPPortTexBox.Value = UDPPort
-                        End If
-                        If (XmlConfig.Name = "AdditionalCommands") Then
-                            AdditionalCommands = XmlConfig.ReadInnerXml.ToString
-                        End If
-                    End If
-                End While
-                XmlConfig.Close()
+                Dim xdoc = XDocument.Load(XmlConfigOpenFileDialog.FileName)
+                SrcdsExePath = xdoc.Descendants("Path").FirstOrDefault()?.Value
+                SrcdsExePathTextBox.Text = SrcdsExePath
+                MapList.Enabled = True
+                CFGMenu.Enabled = True
+                CommonFilesMenu.Enabled = True
+                SMMenu.Enabled = True
+                RunServerButton.Enabled = True
+                SrcdsExePathOpen.Enabled = True
+
+                ServerNameTextBox.Text = xdoc.Descendants("HostName").FirstOrDefault()?.Value
+                ModList.Text = xdoc.Descendants("Mod").FirstOrDefault()?.Value
+                ModList_SelectedIndex()
+
+                Dim customMod = xdoc.Descendants("CustomMod").FirstOrDefault()
+                If customMod IsNot Nothing Then
+                    CustomModTextBox.Text = customMod.Value
+                    CustomModCheckBox.Checked = True
+                End If
+
+                MapList.Enabled = True
+                ServerMap = xdoc.Descendants("Map").FirstOrDefault()?.Value
+                MapList.Text = ServerMap
+
+                NetworkComboBox.SelectedIndex = CInt(xdoc.Descendants("Network").FirstOrDefault()?.Value)
+                MaxPlayers = xdoc.Descendants("Players").FirstOrDefault()?.Value
+                MaxPlayersTexBox.Value = CInt(MaxPlayers)
+                RCON = xdoc.Descendants("RCON").FirstOrDefault()?.Value
+                RconTextBox.Text = RCON
+                CheckBoxMask.Checked = True
+                UDPPort = xdoc.Descendants("Port").FirstOrDefault()?.Value
+                UDPPortTexBox.Value = CInt(UDPPort)
+                AdditionalCommands = xdoc.Descendants("AdditionalCommands").FirstOrDefault()?.Value
+
                 TabMenu.SelectedTab = RunTab
                 GroupBox1.Show()
                 GroupBox3.Show()
@@ -862,7 +812,11 @@ Public Class MainMenu
     Private Sub CfgMenuItems_Click(ByVal sender As Object, ByVal e As EventArgs)
         Dim item = CType(sender, ToolStripItem)
         Dim path = CStr(item.Tag)
-        Process.Start(path)
+        Try
+            Process.Start(path)
+        Catch ex As Exception
+            UpdateStatus($"Failed to open file: {ex.Message}", True)
+        End Try
     End Sub
 
     Private Sub NewFile_Click() Handles NewFileToolStripMenuItem.Click
@@ -871,7 +825,11 @@ Public Class MainMenu
         SaveFileDialog1.FileName = "Config.cfg"
         If SaveFileDialog1.ShowDialog() = DialogResult.OK Then
             File.Create(SaveFileDialog1.FileName).Dispose()
-            Process.Start(SaveFileDialog1.FileName)
+            Try
+                Process.Start(SaveFileDialog1.FileName)
+            Catch ex As Exception
+                UpdateStatus($"Failed to open file: {ex.Message}", True)
+            End Try
             UpdateStatus("File " & SaveFileDialog1.FileName & " has been saved.")
         End If
     End Sub
@@ -879,13 +837,17 @@ Public Class MainMenu
     Private Sub MenuTxt_Click(ByVal sender As System.Object, ByVal e As EventArgs) Handles MotdTxtButton.Click, MapcycleTxtButton.Click, MaplistTxtButton.Click
         Dim TxtFile As ToolStripMenuItem = CType(sender, ToolStripMenuItem)
         Dim MotdPath As String = SrcdsExePath & "\" & GameMod & "\" & TxtFile.Text & ".txt"
-        If File.Exists(MotdPath) Then
-            Process.Start(MotdPath)
-        Else
-            File.Create(MotdPath).Dispose()
-            Process.Start(MotdPath)
-            UpdateStatus(TxtFile.Text & " file not found. New one created.")
-        End If
+        Try
+            If File.Exists(MotdPath) Then
+                Process.Start(MotdPath)
+            Else
+                File.Create(MotdPath).Dispose()
+                Process.Start(MotdPath)
+                UpdateStatus(TxtFile.Text & " file not found. New one created.")
+            End If
+        Catch ex As Exception
+            UpdateStatus($"Failed to open file: {ex.Message}", True)
+        End Try
     End Sub
 
     Private Sub SMMenu_Click() Handles SMMenu.MouseHover, SMMenu.Click
@@ -911,7 +873,11 @@ Public Class MainMenu
     Private Sub SMFileMenuItems_Click(ByVal sender As Object, ByVal e As EventArgs)
         Dim item = CType(sender, ToolStripItem)
         Dim path = CStr(item.Tag)
-        Process.Start(path)
+        Try
+            Process.Start(path)
+        Catch ex As Exception
+            UpdateStatus($"Failed to open file: {ex.Message}", True)
+        End Try
     End Sub
 
     Private Sub LogMenu_Click() Handles LogMenu.MouseHover, LogMenu.Click
@@ -935,7 +901,11 @@ Public Class MainMenu
     Private Sub LogFileMenuItems_Click(ByVal sender As Object, ByVal e As EventArgs)
         Dim item = CType(sender, ToolStripItem)
         Dim path = CStr(item.Tag)
-        Process.Start(path)
+        Try
+            Process.Start(path)
+        Catch ex As Exception
+            UpdateStatus($"Failed to open file: {ex.Message}", True)
+        End Try
     End Sub
 
     ' Console Tab
@@ -959,7 +929,11 @@ Public Class MainMenu
     End Sub
 
     Private Sub ConsoleOpenLog_Click() Handles ConsoleOpenLog.Click
-        Process.Start("explorer.exe", ".\Logs")
+        Try
+            Process.Start("explorer.exe", ".\Logs")
+        Catch ex As Exception
+            UpdateStatus($"Failed to open folder: {ex.Message}", True)
+        End Try
     End Sub
 
     Private Sub ConsoleSaveLog_Click() Handles ConsoleSaveLog.Click
@@ -971,7 +945,11 @@ Public Class MainMenu
         If (SaveFileDialog1.ShowDialog() = DialogResult.OK) _
             AndAlso (SaveFileDialog1.FileName.Length > 0) Then
             File.WriteAllText(SaveFileDialog1.FileName, ConsoleOutput.Text)
-            Process.Start(SaveFileDialog1.FileName)
+            Try
+                Process.Start(SaveFileDialog1.FileName)
+            Catch ex As Exception
+                UpdateStatus($"Failed to open file: {ex.Message}", True)
+            End Try
             UpdateStatus("File " & Path.GetFileName(SaveFileDialog1.FileName) & " has been saved in Logs folder.")
         End If
     End Sub
@@ -1023,26 +1001,36 @@ Public Class MainMenu
         UpdateStatus("Added custom game: " & Name)
     End Sub
 
+    Private Sub LoadSteamCMDPath()
+        Dim steamCmdPathFile As String = "Settings/SteamCMDPath.xml"
+        If File.Exists(steamCmdPathFile) Then
+            Try
+                Dim xdoc = XDocument.Load(steamCmdPathFile)
+                Dim cmdPathElement = xdoc.Descendants("CMDPath").FirstOrDefault()
+                If cmdPathElement IsNot Nothing Then
+                    Dim cmdPath = cmdPathElement.Value
+                    ExePath.Text = cmdPath
+                    FolderBrowserDialog1.SelectedPath = cmdPath
+                    SteamCMDExePath = cmdPath
+                    LogMenu.Enabled = True
+                End If
+            Catch ex As Exception
+                UpdateStatus("Error reading SteamCMD path configuration: " & ex.Message, True)
+            End Try
+        End If
+    End Sub
+
     Private Sub LoadGamesList()
         Try
-            Dim XmlDoc As XmlReader = New XmlTextReader("Settings/SteamCMDGames.xml")
-            'XmlDoc.ReadToFollowing("Games")
-            While (XmlDoc.Read())
-                Dim type = XmlDoc.NodeType
-                If (type = XmlNodeType.Element) Then
-                    If (XmlDoc.Name = "Game") Then
-                        XmlDoc.MoveToAttribute("id")
-                        Dim ID As String = XmlDoc.Value
-                        XmlDoc.Read() 'move pointer to next node part
-                        If (XmlDoc.NodeType = XmlNodeType.Text) Then
-                            Dim Name As String = XmlDoc.Value
-                            GameDictionary.Add(ID, Name)
-                        End If
-                    End If
+            GameDictionary.Clear()
+            Dim xdoc = XDocument.Load("Settings/SteamCMDGames.xml")
+            For Each gameElement In xdoc.Descendants("Game")
+                Dim id = gameElement.Attribute("id")?.Value
+                Dim name = gameElement.Value
+                If id IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(name) Then
+                    GameDictionary.Add(id, name)
                 End If
-
-            End While
-            XmlDoc.Close()
+            Next
         Catch ex As Exception
             UpdateStatus("Error loading games list: " & ex.Message, True)
             InitializeDefaultGamesList()
@@ -1066,28 +1054,140 @@ Public Class MainMenu
     End Sub
 
     Private Sub WriteOutDictionaryAsXml(ByVal dict As Dictionary(Of String, String))
-        Dim XmlSettings As XmlWriterSettings = New XmlWriterSettings()
-        XmlSettings.Indent = True
-        Dim XmlWrt As XmlWriter = XmlWriter.Create("Settings/SteamCMDGames.xml", XmlSettings)
-
-        XmlWrt.WriteStartDocument()
-        XmlWrt.WriteComment("Custom Games Config used by SteamCMD GUI")
-        XmlWrt.WriteComment("This config is loaded automatically.")
-        XmlWrt.WriteStartElement("SteamCMD-Games")
-
-        For Each kvp As KeyValuePair(Of String, String) In dict
-            XmlWrt.WriteStartElement("Game")
-            XmlWrt.WriteAttributeString("id", kvp.Key)
-            XmlWrt.WriteString(kvp.Value)
-            XmlWrt.WriteEndElement()
-        Next
-        XmlWrt.WriteEndElement()
-        XmlWrt.WriteEndDocument()
-        XmlWrt.Close()
+        Dim games = dict.Select(Function(kvp) New XElement("Game", New XAttribute("id", kvp.Key), kvp.Value))
+        Dim xdoc As New XDocument(
+            New XComment("Custom Games Config used by SteamCMD GUI"),
+            New XComment("This config is loaded automatically."),
+            New XElement("SteamCMD-Games", games)
+        )
+        xdoc.Save("Settings/SteamCMDGames.xml")
     End Sub
 
     Private Sub IPButton_Click() Handles IPButton.Click
         Clipboard.SetText(PublicIP, TextDataFormat.UnicodeText)
         UpdateStatus("Public IP copied")
+    End Sub
+End Class
+
+Public Class ServerManager
+    Private ReadOnly mainMenu As MainMenu
+
+    Public ReadOnly Property SteamCMDExePath As String
+    Public ReadOnly Property SteamAppID As String
+    Public ReadOnly Property Login As String
+    Public ReadOnly Property ServerPathInstallation As String
+    Public ReadOnly Property ValidateApp As String
+    Public ReadOnly Property GoldSrcMod As String
+    Public ReadOnly Property Program As String
+    Public ReadOnly Property Game As String
+    Public ReadOnly Property PathForLog As String
+    Public ReadOnly Property SrcdsExePath As String
+    Public ReadOnly Property GameMod As String
+    Public ReadOnly Property ServerName As String
+    Public ReadOnly Property ServerMap As String
+    Public ReadOnly Property NetworkType As String
+    Public ReadOnly Property MaxPlayers As String
+    Public ReadOnly Property RCON As String
+    Public ReadOnly Property UDPPort As String
+    Public ReadOnly Property DebugMode As String
+    Public ReadOnly Property SourceTV As String
+    Public ReadOnly Property ConsoleMode As String
+    Public ReadOnly Property InsecureMode As String
+    Public ReadOnly Property NoBots As String
+    Public ReadOnly Property DevMode As String
+    Public ReadOnly Property Parameters As String
+    Public ReadOnly Property AdditionalCommands As String
+
+    Public Sub New(ByVal mainMenu As MainMenu)
+        Me.mainMenu = mainMenu
+        Me.SteamCMDExePath = mainMenu.SteamCMDExePath
+        Me.SteamAppID = mainMenu.SteamAppID
+        Me.Login = mainMenu.Login
+        Me.ServerPathInstallation = mainMenu.ServerPathInstallation
+        Me.ValidateApp = mainMenu.ValidateApp
+        Me.GoldSrcMod = mainMenu.GoldSrcMod
+        Me.Program = mainMenu.Program
+        Me.Game = mainMenu.Game
+        Me.PathForLog = mainMenu.PathForLog
+        Me.SrcdsExePath = mainMenu.SrcdsExePath
+        Me.GameMod = mainMenu.GameMod
+        Me.ServerName = mainMenu.ServerName
+        Me.ServerMap = mainMenu.ServerMap
+        Me.NetworkType = mainMenu.NetworkType
+        Me.MaxPlayers = mainMenu.MaxPlayers
+        Me.RCON = mainMenu.RCON
+        Me.UDPPort = mainMenu.UDPPort
+        Me.DebugMode = mainMenu.DebugMode
+        Me.SourceTV = mainMenu.SourceTV
+        Me.ConsoleMode = mainMenu.ConsoleMode
+        Me.InsecureMode = mainMenu.InsecureMode
+        Me.NoBots = mainMenu.NoBots
+        Me.DevMode = mainMenu.DevMode
+        Me.Parameters = mainMenu.Parameters
+        Me.AdditionalCommands = mainMenu.AdditionalCommands
+    End Sub
+
+    Public Sub RunServer()
+        Dim baseServerPath As String = mainMenu.SrcdsExePathTextBox.Text
+        If String.IsNullOrWhiteSpace(baseServerPath) Then
+            mainMenu.UpdateStatus("SRCDS path is not set. Please configure it in the 'Run' tab.", True)
+            Return
+        End If
+
+        Dim is64Bit As Boolean = mainMenu.Is64BitCheckBox.Checked
+        Dim srcdsFinalPath As String = If(is64Bit, Path.Combine(baseServerPath, "bin", "win64", "srcds.exe"), Path.Combine(baseServerPath, "srcds.exe"))
+
+        If Not My.Computer.FileSystem.FileExists(srcdsFinalPath) Then
+            mainMenu.UpdateStatus("Can't find 'srcds.exe' at: " & srcdsFinalPath, True)
+            Return
+        End If
+
+        If String.IsNullOrWhiteSpace(GameMod) Then
+            mainMenu.UpdateStatus("Please, select a game.", True)
+            Return
+        End If
+
+        If String.IsNullOrWhiteSpace(mainMenu.ServerNameTextBox.Text) Then
+            mainMenu.UpdateStatus("Please, type a name for the server.", True)
+            Return
+        End If
+
+        If String.IsNullOrWhiteSpace(mainMenu.MapList.Text) Then
+            mainMenu.UpdateStatus("Select the default map.", True)
+            Return
+        End If
+
+        Dim argsBuilder As New StringBuilder()
+        argsBuilder.Append(DebugMode)
+        argsBuilder.Append(SourceTV)
+        argsBuilder.Append(ConsoleMode)
+        argsBuilder.Append(InsecureMode)
+        argsBuilder.Append(NoBots)
+        argsBuilder.Append(DevMode)
+        argsBuilder.AppendFormat("-game {0} ", GameMod)
+        argsBuilder.AppendFormat("-port {0} ", UDPPort)
+        argsBuilder.AppendFormat("+hostname ""{0}"" ", mainMenu.ServerNameTextBox.Text)
+        argsBuilder.AppendFormat("+map {0} ", mainMenu.MapList.Text)
+        argsBuilder.AppendFormat("+maxplayers {0} ", mainMenu.MaxPlayersTexBox.Text)
+        argsBuilder.AppendFormat("+sv_lan {0} ", mainMenu.NetworkComboBox.SelectedIndex)
+        argsBuilder.Append(AdditionalCommands)
+
+        mainMenu.UpdateStatus("Running server...")
+
+        Dim p As New Process
+        With p.StartInfo
+            .FileName = srcdsFinalPath
+            .UseShellExecute = False
+            .CreateNoWindow = False
+            .UseShellExecute = False
+            .CreateNoWindow = False
+            .Arguments = argsBuilder.ToString()
+        End With
+
+        Try
+            p.Start()
+        Catch ex As Exception
+            mainMenu.UpdateStatus("Failed to start server: " & ex.Message, True)
+        End Try
     End Sub
 End Class

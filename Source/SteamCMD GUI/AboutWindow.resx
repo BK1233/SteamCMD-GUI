@@ -134,9 +134,6 @@
   <data name="VersionLabel.TabIndex" type="System.Int32, mscorlib">
     <value>12</value>
   </data>
-  <data name="VersionLabel.Text" xml:space="preserve">
-    <value>{0}.{1}.{2}.{3}</value>
-  </data>
   <data name="&gt;&gt;VersionLabel.Name" xml:space="preserve">
     <value>VersionLabel</value>
   </data>
@@ -149,34 +146,31 @@
   <data name="&gt;&gt;VersionLabel.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
-  <data name="AutorLabel.AutoSize" type="System.Boolean, mscorlib">
+  <data name="AuthorLabel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="AutorLabel.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="AuthorLabel.Font" type="System.Drawing.Font, System.Drawing">
     <value>MS Reference Sans Serif, 8.25pt</value>
   </data>
-  <data name="AutorLabel.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="AuthorLabel.Location" type="System.Drawing.Point, System.Drawing">
     <value>225, 57</value>
   </data>
-  <data name="AutorLabel.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="AuthorLabel.Size" type="System.Drawing.Size, System.Drawing">
     <value>71, 15</value>
   </data>
-  <data name="AutorLabel.TabIndex" type="System.Int32, mscorlib">
+  <data name="AuthorLabel.TabIndex" type="System.Int32, mscorlib">
     <value>13</value>
   </data>
-  <data name="AutorLabel.Text" xml:space="preserve">
-    <value>Dio Joestar</value>
+  <data name="&gt;&gt;AuthorLabel.Name" xml:space="preserve">
+    <value>AuthorLabel</value>
   </data>
-  <data name="&gt;&gt;AutorLabel.Name" xml:space="preserve">
-    <value>AutorLabel</value>
-  </data>
-  <data name="&gt;&gt;AutorLabel.Type" xml:space="preserve">
+  <data name="&gt;&gt;AuthorLabel.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;AutorLabel.Parent" xml:space="preserve">
+  <data name="&gt;&gt;AuthorLabel.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
-  <data name="&gt;&gt;AutorLabel.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;AuthorLabel.ZOrder" xml:space="preserve">
     <value>5</value>
   </data>
   <data name="Close2.Location" type="System.Drawing.Point, System.Drawing">

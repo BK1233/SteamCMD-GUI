@@ -432,6 +432,7 @@ Partial Class MainMenu
         Me.GroupBox6.Controls.Add(Me.Label6)
         Me.GroupBox6.Controls.Add(Me.Label8)
         Me.GroupBox6.Controls.Add(Me.Label5)
+        Me.GroupBox6.Controls.Add(Me.Is64BitCheckBox)
         resources.ApplyResources(Me.GroupBox6, "GroupBox6")
         Me.GroupBox6.Name = "GroupBox6"
         Me.GroupBox6.TabStop = False
@@ -455,6 +456,13 @@ Partial Class MainMenu
         resources.ApplyResources(Me.InsecureCheckBox, "InsecureCheckBox")
         Me.InsecureCheckBox.Name = "InsecureCheckBox"
         Me.InsecureCheckBox.UseVisualStyleBackColor = True
+        '
+        'Is64BitCheckBox
+        '
+        resources.ApplyResources(Me.Is64BitCheckBox, "Is64BitCheckBox")
+        Me.Is64BitCheckBox.Name = "Is64BitCheckBox"
+        Me.Is64BitCheckBox.UseVisualStyleBackColor = True
+        Me.Is64BitCheckBox.Location = New System.Drawing.Point(290, 110)
         '
         'DevModeCheckBox
         '
@@ -1025,5 +1033,6 @@ Partial Class MainMenu
     Friend WithEvents ConsoleIPPrint As System.Windows.Forms.Button
     Friend WithEvents IPTextbox As System.Windows.Forms.TextBox
     Friend WithEvents IPButton As System.Windows.Forms.Button
+    Friend WithEvents Is64BitCheckBox As System.Windows.Forms.CheckBox
 
 End Class

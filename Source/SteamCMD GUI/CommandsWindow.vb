@@ -1,31 +1,42 @@
-﻿Public Class CommandLineOptionsWindow
-    Private Sub LoadWindow() Handles Me.Load
+﻿Imports System.ComponentModel
+
+Public Class CommandLineOptionsWindow
+
+    Public Sub New()
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Load additional commands into the textbox.
         CommandsTextbox.Text = AdditionalCommands
     End Sub
 
-    ' Disable close button
-    Private Const DisableClose As Integer = &H200
-    Protected Overloads Overrides ReadOnly Property CreateParams() As CreateParams
-        Get
-            Dim myCp As CreateParams = MyBase.CreateParams
-            myCp.ClassStyle = myCp.ClassStyle Or DisableClose
-            Return myCp
-        End Get
-    End Property
-
-    Private Sub Test(sender As Object, e As Windows.Forms.KeyPressEventArgs) Handles CommandsTextbox.KeyPress
+    ''' <summary>
+    ''' Handles the Click event of the OKButton.
+    ''' </summary>
+    Private Sub OKButton_Click(sender As Object, e As EventArgs) Handles OKButton.Click
         AdditionalCommands = CommandsTextbox.Text
-        ' Close if press Enter
-        If e.KeyChar = ChrW(Keys.Enter) Then
-            Close()
-        End If
+        DialogResult = DialogResult.OK
+        Close()
     End Sub
 
-    Private Sub CommandHelpButton_Click() Handles CommandHelpButton.Click
-        Process.Start("https://developer.valvesoftware.com/wiki/Command_Line_Options")
+    ''' <summary>
+    ''' Handles the Click event of the CancelButton.
+    ''' </summary>
+    Private Sub CancelButton_Click(sender As Object, e As EventArgs) Handles CancelButton.Click
+        DialogResult = DialogResult.Cancel
+        Close()
     End Sub
 
-    Private Sub CommandHelpButton_Click(sender As System.Object, e As EventArgs) Handles CommandHelpButton.Click
-
+    ''' <summary>
+    ''' Handles the Click event of the CommandHelpButton.
+    ''' </summary>
+    Private Sub CommandHelpButton_Click(sender As Object, e As EventArgs) Handles CommandHelpButton.Click
+        Try
+            Process.Start("https://developer.valvesoftware.com/wiki/Command_Line_Options")
+        Catch ex As Win32Exception
+            MessageBox.Show("Could not open the link. Please check if you have a default web browser.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Catch ex As Exception
+            MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
     End Sub
 End Class

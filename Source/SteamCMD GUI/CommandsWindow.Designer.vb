@@ -25,6 +25,8 @@ Partial Class CommandLineOptionsWindow
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(CommandLineOptionsWindow))
         Me.CommandsTextbox = New System.Windows.Forms.TextBox()
         Me.CommandHelpButton = New System.Windows.Forms.Button()
+        Me.OKButton = New System.Windows.Forms.Button()
+        Me.CancelButton = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'CommandsTextbox
@@ -41,13 +43,30 @@ Partial Class CommandLineOptionsWindow
         Me.CommandHelpButton.TabStop = False
         Me.CommandHelpButton.UseVisualStyleBackColor = False
         '
+        'OKButton
+        '
+        resources.ApplyResources(Me.OKButton, "OKButton")
+        Me.OKButton.Name = "OKButton"
+        Me.OKButton.UseVisualStyleBackColor = True
+        '
+        'CancelButton
+        '
+        resources.ApplyResources(Me.CancelButton, "CancelButton")
+        Me.CancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel
+        Me.CancelButton.Name = "CancelButton"
+        Me.CancelButton.UseVisualStyleBackColor = True
+        '
         'CommandLineOptionsWindow
         '
+        Me.AcceptButton = Me.OKButton
         resources.ApplyResources(Me, "$this")
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.CancelButton = Me.CancelButton
+        Me.Controls.Add(Me.CancelButton)
+        Me.Controls.Add(Me.OKButton)
         Me.Controls.Add(Me.CommandHelpButton)
         Me.Controls.Add(Me.CommandsTextbox)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow
         Me.Name = "CommandLineOptionsWindow"
         Me.ResumeLayout(False)
         Me.PerformLayout()
@@ -55,4 +74,6 @@ Partial Class CommandLineOptionsWindow
     End Sub
     Friend WithEvents CommandsTextbox As System.Windows.Forms.TextBox
     Friend WithEvents CommandHelpButton As System.Windows.Forms.Button
+    Friend WithEvents OKButton As System.Windows.Forms.Button
+    Friend WithEvents CancelButton As System.Windows.Forms.Button
 End Class

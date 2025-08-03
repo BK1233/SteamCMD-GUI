@@ -24,7 +24,7 @@ Partial Class AboutWindow
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(AboutWindow))
         Me.VersionLabel = New System.Windows.Forms.Label()
-        Me.AutorLabel = New System.Windows.Forms.Label()
+        Me.AuthorLabel = New System.Windows.Forms.Label()
         Me.Close2 = New System.Windows.Forms.Button()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.VersionLabel2 = New System.Windows.Forms.Label()
@@ -42,12 +42,12 @@ Partial Class AboutWindow
         Me.VersionLabel.ForeColor = System.Drawing.SystemColors.ControlText
         Me.VersionLabel.Name = "VersionLabel"
         '
-        'AutorLabel
+        'AuthorLabel
         '
-        resources.ApplyResources(Me.AutorLabel, "AutorLabel")
-        Me.AutorLabel.BackColor = System.Drawing.SystemColors.Control
-        Me.AutorLabel.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.AutorLabel.Name = "AutorLabel"
+        resources.ApplyResources(Me.AuthorLabel, "AuthorLabel")
+        Me.AuthorLabel.BackColor = System.Drawing.SystemColors.Control
+        Me.AuthorLabel.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.AuthorLabel.Name = "AuthorLabel"
         '
         'Close2
         '
@@ -100,7 +100,7 @@ Partial Class AboutWindow
         Me.Controls.Add(Me.AuthorLabel2)
         Me.Controls.Add(Me.VersionLabel2)
         Me.Controls.Add(Me.VersionLabel)
-        Me.Controls.Add(Me.AutorLabel)
+        Me.Controls.Add(Me.AuthorLabel)
         Me.Controls.Add(Me.Close2)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.PictureBox2)
@@ -113,7 +113,7 @@ Partial Class AboutWindow
 
     End Sub
     Friend WithEvents VersionLabel As System.Windows.Forms.Label
-    Friend WithEvents AutorLabel As System.Windows.Forms.Label
+    Friend WithEvents AuthorLabel As System.Windows.Forms.Label
     Friend WithEvents Close2 As System.Windows.Forms.Button
     Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents PictureBox2 As System.Windows.Forms.PictureBox
