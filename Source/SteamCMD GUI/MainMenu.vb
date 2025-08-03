@@ -22,11 +22,18 @@ Public Class MainMenu
     Dim IPs As IPHostEntry = Dns.GetHostEntry(LocalHost)
     Dim PublicIP As String
 
+    Private Const GOLDSRC_APP_ID As Integer = 90
+
     Private Declare Function GetInputState Lib "user32" () As Int32
 
     Private Sub Form1_Load() Handles MyBase.Load
         If My.Computer.Network.IsAvailable Then
-            PublicIP = WC.DownloadString("http://ipv4.icanhazip.com/")
+            Try
+                PublicIP = WC.DownloadString("http://ipv4.icanhazip.com/")
+            Catch ex As WebException
+                PublicIP = "Network down"
+                UpdateStatus("Could not retrieve public IP: " & ex.Message, True)
+            End Try
         Else
             PublicIP = "Network down"
         End If
@@ -47,19 +54,23 @@ Public Class MainMenu
             Directory.CreateDirectory("Logs")
         End If
         If File.Exists("Settings/SteamCMDPath.xml") Then
-            Dim XmlConfig As XmlReader = New XmlTextReader("Settings/SteamCMDPath.xml")
-            While (XmlConfig.Read())
-                Dim type = XmlConfig.NodeType
-                If (type = XmlNodeType.Element) Then
-                    If (XmlConfig.Name = "CMDPath") Then
-                        ExePath.Text = XmlConfig.ReadInnerXml.ToString()
-                        FolderBrowserDialog1.SelectedPath = ExePath.Text
-                        SteamCMDExePath = ExePath.Text
-                        LogMenu.Enabled = True
+            Try
+                Dim XmlConfig As XmlReader = New XmlTextReader("Settings/SteamCMDPath.xml")
+                While (XmlConfig.Read())
+                    Dim type = XmlConfig.NodeType
+                    If (type = XmlNodeType.Element) Then
+                        If (XmlConfig.Name = "CMDPath") Then
+                            ExePath.Text = XmlConfig.ReadInnerXml.ToString()
+                            FolderBrowserDialog1.SelectedPath = ExePath.Text
+                            SteamCMDExePath = ExePath.Text
+                            LogMenu.Enabled = True
+                        End If
                     End If
-                End If
-            End While
-            XmlConfig.Close()
+                End While
+                XmlConfig.Close()
+            Catch ex As Exception
+                UpdateStatus("Error reading SteamCMD path configuration: " & ex.Message, True)
+            End Try
         End If
         If File.Exists("Settings/SteamCMDGames.xml") Then
             LoadGamesList()
@@ -74,6 +85,16 @@ Public Class MainMenu
 
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0F, 13.0F)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+    End Sub
+
+    Private Sub UpdateStatus(text As String, Optional isError As Boolean = False)
+        Status.Text = text
+        If isError Then
+            Status.BackColor = Color.FromArgb(240, 200, 200)
+            My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Hand)
+        Else
+            Status.BackColor = Color.FromArgb(240, 240, 240)
+        End If
     End Sub
 
     Private Sub Tips()
@@ -136,15 +157,16 @@ Public Class MainMenu
     Private Sub SteamCMDDownload_Click() Handles SteamCMDDownloadButton.Click
         SteamCMDDownloadButton.Enabled = False
         If My.Computer.FileSystem.FileExists("steamcmd.zip") Then
-            Status.Text = "The file has already been downloaded!"
-            Status.BackColor = Color.FromArgb(240, 200, 200)
-            My.Computer.Audio.PlaySystemSound( _
-                Media.SystemSounds.Hand)
+            UpdateStatus("The file has already been downloaded!", True)
             SteamCMDDownloadButton.Enabled = True
         Else
-            WC.DownloadFileAsync(New Uri("http://media.steampowered.com/installer/steamcmd.zip"), "steamcmd.zip")
-            Status.Text = "Downloading..."
-            Status.BackColor = Color.FromArgb(240, 240, 240)
+            Try
+                WC.DownloadFileAsync(New Uri("http://media.steampowered.com/installer/steamcmd.zip"), "steamcmd.zip")
+                UpdateStatus("Downloading...")
+            Catch ex As Exception
+                UpdateStatus("Error downloading SteamCMD: " & ex.Message, True)
+                SteamCMDDownloadButton.Enabled = True
+            End Try
         End If
     End Sub
 
@@ -155,11 +177,9 @@ Public Class MainMenu
     Private Sub WC_DownloadProgressChanged(ByVal sender As Object, ByVal e As DownloadProgressChangedEventArgs) Handles WC.DownloadProgressChanged
         DonwloadBar.Value = e.ProgressPercentage
         If DonwloadBar.Value = 100 Then
-            Status.Text = "The file 'steamcmd.zip' has been downloaded. Please, unzip it."
-            Status.BackColor = Color.FromArgb(240, 240, 240)
+            UpdateStatus("The file 'steamcmd.zip' has been downloaded. Please, unzip it.")
             DonwloadBar.Value = 0
-            My.Computer.Audio.PlaySystemSound( _
-              Media.SystemSounds.Exclamation)
+            My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Exclamation)
             SteamCMDDownloadButton.Enabled = True
         End If
     End Sub
@@ -190,14 +210,10 @@ Public Class MainMenu
                 XmlWrt.Close()
 
                 LogMenu.Enabled = True
-                Status.Text = "Current path of 'steamcmd.exe' is " & FolderBrowserDialog1.SelectedPath
-                Status.BackColor = Color.FromArgb(240, 240, 240)
+                UpdateStatus("Current path of 'steamcmd.exe' is " & FolderBrowserDialog1.SelectedPath)
             Else
                 LogMenu.Enabled = False
-                Status.Text = CantFindSteamCMDString
-                Status.BackColor = Color.FromArgb(240, 200, 200)
-                My.Computer.Audio.PlaySystemSound( _
-                    Media.SystemSounds.Hand)
+                UpdateStatus(CantFindSteamCMDString & " Please select the correct installation folder.", True)
             End If
         End If
     End Sub
@@ -222,14 +238,10 @@ Public Class MainMenu
             Dim ServerInstallPath As String
             ServerInstallPath = FolderBrowserDialog1.SelectedPath
         End If
-        If ServerPath.Text = Nothing Then
-            Status.Text = "Please, select a folder for install/update the server."
-            Status.BackColor = Color.FromArgb(240, 200, 200)
-            My.Computer.Audio.PlaySystemSound( _
-                Media.SystemSounds.Hand)
+        If String.IsNullOrWhiteSpace(ServerPath.Text) Then
+            UpdateStatus("Please, select a folder for install/update the server.", True)
         Else
-            Status.Text = "The server will be installed/updated in '" & ServerPath.Text & "'"
-            Status.BackColor = Color.FromArgb(240, 240, 240)
+            UpdateStatus("The server will be installed/updated in '" & ServerPath.Text & "'")
             UpdateServerButton.Enabled = True
         End If
     End Sub
@@ -244,7 +256,7 @@ Public Class MainMenu
         End If
 
 
-        If Not SteamAppID = 90 Then
+        If Not SteamAppID = GOLDSRC_APP_ID.ToString() Then
             GoldSrcModInput.Hide()
             GoldSrcModLabel.Hide()
             AddCustomGameButton.Show()
@@ -253,14 +265,13 @@ Public Class MainMenu
             GoldSrcModLabel.Show()
             AddCustomGameButton.Hide()
         End If
-        Status.Text = "Game to install: " & GamesList.Text & " - Steam App ID:" & SteamAppID
-        Status.BackColor = Color.FromArgb(240, 240, 240)
+        UpdateStatus("Game to install: " & GamesList.Text & " - Steam App ID:" & SteamAppID)
     End Sub
 
     Private Sub ValidateCheckBox_CheckedChanged() Handles ValidateCheckBox.CheckedChanged
         If ValidateCheckBox.Checked = True Then
             ValidateApp = " validate"
-            Status.Text = "The files will be checked and validated."
+            UpdateStatus("The files will be checked and validated.")
         Else
             ValidateApp = ""
         End If
@@ -269,11 +280,8 @@ Public Class MainMenu
     Private Sub UpdateServerButton_Click() Handles UpdateServerButton.Click
         FolderBrowserDialog1.SelectedPath = SteamCMDExePath
         If My.Computer.FileSystem.FileExists(FolderBrowserDialog1.SelectedPath & "\steamcmd.exe") Then
-            If SteamAppID = Nothing Then
-                Status.Text = "Steam App ID not defined"
-                Status.BackColor = Color.FromArgb(240, 200, 200)
-                My.Computer.Audio.PlaySystemSound( _
-                    Media.SystemSounds.Hand)
+            If String.IsNullOrWhiteSpace(SteamAppID) Then
+                UpdateStatus("Please select a game to install/update.", True)
             Else
                 If AnonymousCheckBox.Checked = True Then
                     Login = "anonymous"
@@ -284,43 +292,34 @@ Public Class MainMenu
                     Passwd = PasswdTextBox.Text
                     Login = UserName & " " & Passwd
                 End If
-                If UsernameTextBox.Text = Nothing AndAlso AnonymousCheckBox.Checked = False Then
-                    Status.Text = "Please, type your Steam name."
-                    Status.BackColor = Color.FromArgb(240, 200, 200)
-                    My.Computer.Audio.PlaySystemSound( _
-                        Media.SystemSounds.Hand)
+                If String.IsNullOrWhiteSpace(UsernameTextBox.Text) AndAlso AnonymousCheckBox.Checked = False Then
+                    UpdateStatus("Please, type your Steam name.", True)
                 Else
-                    If PasswdTextBox.Text = Nothing AndAlso AnonymousCheckBox.Checked = False Then
-                        Status.Text = "Please, type your Steam password. You can install many games as 'anonymous'."
-                        Status.BackColor = Color.FromArgb(240, 200, 200)
-                        My.Computer.Audio.PlaySystemSound( _
-                            Media.SystemSounds.Hand)
+                    If String.IsNullOrWhiteSpace(PasswdTextBox.Text) AndAlso AnonymousCheckBox.Checked = False Then
+                        UpdateStatus("Please, type your Steam password. You can install many games as 'anonymous'.", True)
                     Else
-                        If ServerPath.Text = Nothing Then
-                            Status.Text = "Please, select the path where you want to install the server."
-                            Status.BackColor = Color.FromArgb(240, 200, 200)
-                            My.Computer.Audio.PlaySystemSound( _
-                                Media.SystemSounds.Hand)
+                        If String.IsNullOrWhiteSpace(ServerPath.Text) Then
+                            UpdateStatus("Please, select the path where you want to install the server.", True)
                         Else
-                            If GoldSrcModInput.Visible = True _
-                                AndAlso Not String.IsNullOrEmpty(GoldSrcModInput.Text) Then
-                                GoldSrcMod = " +app_set_config 90 mod " & GoldSrcModInput.Text
+                            If GoldSrcModInput.Visible = True Then
+                                If Not String.IsNullOrEmpty(GoldSrcModInput.Text) Then
+                                    GoldSrcMod = " +app_set_config " & GOLDSRC_APP_ID & " mod " & GoldSrcModInput.Text
+                                Else
+                                    UpdateStatus("Half-Life mod not defined. Installing a default one.", True)
+                                    GoldSrcMod = " +app_set_config " & GOLDSRC_APP_ID & " mod valve" ' Default to valve
+                                End If
                             Else
-                                Status.Text = "Half-Life mod not defined. Installing a default one."
-                                Status.BackColor = Color.FromArgb(240, 200, 200)
-                                My.Computer.Audio.PlaySystemSound( _
-                                    Media.SystemSounds.Hand)
+                                GoldSrcMod = ""
                             End If
                             ServerPathInstallation = Chr(34) & ServerPath.Text & Chr(34)
-                            Status.Text = "Installing/Updating..."
-                            Status.BackColor = Color.FromArgb(240, 240, 240)
+                            UpdateStatus("Installing/Updating...")
 
                             If CheckBoxConsole.Checked = False Then
                                 p = New Process
                                 With (p.StartInfo)
                                     .FileName = SteamCMDExePath & "\steamcmd.exe"
                                     .UseShellExecute = False
-                                    .Arguments = "SteamCmd +login " & Login & " +force_install_dir " & ServerPathInstallation & GoldSrcMod & " +app_update " & SteamAppID & ValidateApp
+                                    .Arguments = String.Format("SteamCmd +login {0} +force_install_dir {1}{2} +app_update {3}{4}", Login, ServerPathInstallation, GoldSrcMod, SteamAppID, ValidateApp)
                                 End With
                                 p.Start()
                             Else
@@ -336,10 +335,7 @@ Public Class MainMenu
                 End If
             End If
         Else
-            Status.Text = CantFindSteamCMDString
-            Status.BackColor = Color.FromArgb(240, 200, 200)
-            My.Computer.Audio.PlaySystemSound( _
-                Media.SystemSounds.Hand)
+            UpdateStatus(CantFindSteamCMDString, True)
         End If
     End Sub
 
@@ -356,7 +352,7 @@ Public Class MainMenu
             .RedirectStandardOutput = True
             .RedirectStandardInput = True
             .RedirectStandardError = True
-            .Arguments = "SteamCmd +login " & Login & " +force_install_dir " & ServerPathInstallation & GoldSrcMod & " +app_update " & SteamAppID & ValidateApp
+            .Arguments = String.Format("SteamCmd +login {0} +force_install_dir {1}{2} +app_update {3}{4}", Login, ServerPathInstallation, GoldSrcMod, SteamAppID, ValidateApp)
         End With
 
         p.Start()
@@ -394,12 +390,15 @@ Public Class MainMenu
     'Run server inputs
     Private Sub SrcdsExePath_Browser() Handles SrcdsExePathTextBox.Click, SrcdsExeBrowserButton.Click
         If FolderBrowserDialog1.ShowDialog() = DialogResult.OK Then
-            If My.Computer.FileSystem.FileExists(FolderBrowserDialog1.SelectedPath & "\srcds.exe") Then
-                SrcdsExePathTextBox.Text = FolderBrowserDialog1.SelectedPath
-                SrcdsExePath = FolderBrowserDialog1.SelectedPath
+            Dim selectedPath = FolderBrowserDialog1.SelectedPath
+            Dim srcds32Path = Path.Combine(selectedPath, "srcds.exe")
+            Dim srcds64Path = Path.Combine(selectedPath, "bin", "win64", "srcds.exe")
+
+            If My.Computer.FileSystem.FileExists(srcds32Path) OrElse My.Computer.FileSystem.FileExists(srcds64Path) Then
+                SrcdsExePathTextBox.Text = selectedPath
+                SrcdsExePath = selectedPath
                 MapList.Enabled = True
-                Status.Text = "Current path of 'srcds.exe' is " & FolderBrowserDialog1.SelectedPath
-                Status.BackColor = Color.FromArgb(240, 240, 240)
+                UpdateStatus("Current path of 'srcds.exe' is " & selectedPath)
                 SrcdsExePathOpen.Enabled = True
                 CFGMenu.Enabled = True
                 CommonFilesMenu.Enabled = True
@@ -412,10 +411,7 @@ Public Class MainMenu
                 CommonFilesMenu.Enabled = False
                 SMMenu.Enabled = False
                 RunServerButton.Enabled = False
-                Status.Text = "Can't find the file 'srcds.exe'!"
-                Status.BackColor = Color.FromArgb(240, 200, 200)
-                My.Computer.Audio.PlaySystemSound( _
-                    Media.SystemSounds.Hand)
+                UpdateStatus("Can't find 'srcds.exe' in the selected folder. Please ensure it's a valid server installation directory.", True)
             End If
         End If
     End Sub
@@ -455,8 +451,7 @@ Public Class MainMenu
         If ModList.Text = "Team Fortress 2" Then
             GameMod = "tf"
         End If
-        Status.Text = "Game/Mod to run: " & ModList.Text & " - Game parameter: " & GameMod
-        Status.BackColor = Color.FromArgb(240, 240, 240)
+        UpdateStatus("Game/Mod to run: " & ModList.Text & " - Game parameter: " & GameMod)
     End Sub
 
     Private Sub ModHelpButton_Click() Handles ModHelpButton.Click
@@ -475,8 +470,7 @@ Public Class MainMenu
             InsecureCheckBox.Enabled = False
             BotsCheckBox.Enabled = False
             DevModeCheckBox.Enabled = False
-            Status.Text = "Custom Mod: " & GameMod
-            Status.BackColor = Color.FromArgb(240, 240, 240)
+            UpdateStatus("Custom Mod: " & GameMod)
         Else
             ModList.Enabled = True
             CustomModTextBox.Enabled = False
@@ -492,7 +486,7 @@ Public Class MainMenu
 
     Private Sub ServerNameTextBox_TextChanged() Handles ServerNameTextBox.TextChanged
         ServerName = ServerNameTextBox.Text
-        Status.Text = "The name of the server will be: " & ServerName
+        UpdateStatus("The name of the server will be: " & ServerName)
     End Sub
 
     Private Sub MapList_DropDown() Handles MapList.DropDown
@@ -505,16 +499,13 @@ Public Class MainMenu
                 MapList.Items.Add(Path.GetFileNameWithoutExtension(MapFile))
             Next
         Else
-            Status.Text = "The 'map' folder is empty or doesn't exist!"
-            Status.BackColor = Color.FromArgb(240, 200, 200)
-            My.Computer.Audio.PlaySystemSound( _
-                Media.SystemSounds.Hand)
+            UpdateStatus("The 'map' folder is empty or doesn't exist!", True)
         End If
     End Sub
 
     Private Sub MapList_ChooseMap() Handles MapList.SelectedIndexChanged
         ServerMap = MapList.Text
-        Status.Text = "The map of the server will be: " & ServerMap
+        UpdateStatus("The map of the server will be: " & ServerMap)
     End Sub
 
     Private Sub CheckBoxMask_CheckedChanged() Handles CheckBoxMask.CheckedChanged
@@ -528,13 +519,18 @@ Public Class MainMenu
     End Sub
 
     Private Sub MaxPlayersTexBox_ValueChanged() Handles MaxPlayersTexBox.TextChanged
-        MaxPlayers = MaxPlayersTexBox.Value
-        Status.Text = "Max players set to " & MaxPlayers
+        Dim players As Integer
+        If Integer.TryParse(MaxPlayersTexBox.Text, players) Then
+            MaxPlayers = players.ToString()
+            UpdateStatus("Max players set to " & MaxPlayers)
+        Else
+            UpdateStatus("Invalid number for Max Players.", True)
+        End If
     End Sub
 
     Private Sub NetworkComboBox_SelectedIndexChanged() Handles NetworkComboBox.SelectedIndexChanged
         NetworkType = NetworkComboBox.SelectedIndex
-        Status.Text = "Cvar sv_lan set to " & NetworkType
+        UpdateStatus("Cvar sv_lan set to " & NetworkType)
     End Sub
 
     Private Sub RconTextBox_MaskInputRejected() Handles RconTextBox.TextChanged
@@ -542,8 +538,13 @@ Public Class MainMenu
     End Sub
 
     Private Sub UDPPortTexBox_ValueChanged() Handles UDPPortTexBox.TextChanged
-        UDPPort = UDPPortTexBox.Value
-        Status.Text = "UPD port set to " & UDPPort
+        Dim port As Integer
+        If Integer.TryParse(UDPPortTexBox.Text, port) Then
+            UDPPort = port.ToString()
+            UpdateStatus("UPD port set to " & UDPPort)
+        Else
+            UpdateStatus("Invalid number for UDP Port.", True)
+        End If
     End Sub
 
     'Command-line Arguments
@@ -600,35 +601,36 @@ Public Class MainMenu
     End Sub
 
     Private Sub RunServerButton_Click() Handles RunServerButton.Click
-        If My.Computer.FileSystem.FileExists(SrcdsExePathTextBox.Text & "\srcds.exe") Then
-            If GameMod = Nothing Then
-                Status.Text = "Please, select a game."
-                Status.BackColor = Color.FromArgb(240, 200, 200)
-                My.Computer.Audio.PlaySystemSound( _
-                    Media.SystemSounds.Hand)
+        Dim srcdsFinalPath As String
+        Dim baseServerPath As String = SrcdsExePathTextBox.Text
+
+        ' NOTE: You need to add a CheckBox named Is64BitCheckBox to the form for this to work.
+        If Is64BitCheckBox.Checked AndAlso GameMod = "tf" Then
+            srcdsFinalPath = Path.Combine(baseServerPath, "bin", "win64", "srcds.exe")
+        Else
+            srcdsFinalPath = Path.Combine(baseServerPath, "srcds.exe")
+        End If
+
+        If My.Computer.FileSystem.FileExists(srcdsFinalPath) Then
+            If String.IsNullOrWhiteSpace(GameMod) Then
+                UpdateStatus("Please, select a game.", True)
             Else
-                If ServerName = Nothing Then
-                    Status.Text = "Please, type a name for the server."
-                    Status.BackColor = Color.FromArgb(240, 200, 200)
-                    My.Computer.Audio.PlaySystemSound( _
-                        Media.SystemSounds.Hand)
+                If String.IsNullOrWhiteSpace(ServerName) Then
+                    UpdateStatus("Please, type a name for the server.", True)
                 Else
-                    If ServerMap = Nothing Then
-                        Status.Text = "Select the default map."
-                        Status.BackColor = Color.FromArgb(240, 200, 200)
-                        My.Computer.Audio.PlaySystemSound( _
-                            Media.SystemSounds.Hand)
+                    If String.IsNullOrWhiteSpace(ServerMap) Then
+                        UpdateStatus("Select the default map.", True)
                     Else
                         Parameters = DebugMode & SourceTV & ConsoleMode & InsecureMode & NoBots & DevMode
-                        Status.Text = "Running server..."
-                        Status.BackColor = Color.FromArgb(240, 240, 240)
+                        UpdateStatus("Running server...")
 
                         Dim p As New Process
                         With (p.StartInfo)
-                            .FileName = SrcdsExePath & "\srcds.exe"
+                            .FileName = srcdsFinalPath
                             .UseShellExecute = False
                             .CreateNoWindow = False
-                            .Arguments = Parameters & "-game " & GameMod & " -port " & UDPPort & " +hostname " & Chr(34) & ServerName & Chr(34) & " +map " & ServerMap & " +maxplayers " & MaxPlayers & " +sv_lan " & NetworkComboBox.SelectedIndex & " " & AdditionalCommands
+                            .Arguments = String.Format("{0}-game {1} -port {2} +hostname ""{3}"" +map {4} +maxplayers {5} +sv_lan {6} {7}",
+                                                       Parameters, GameMod, UDPPort, ServerName, ServerMap, MaxPlayers, NetworkComboBox.SelectedIndex, AdditionalCommands)
                         End With
 
                         p.Start()
@@ -636,10 +638,7 @@ Public Class MainMenu
                 End If
             End If
         Else
-            Status.Text = "Can't find the file 'srcds.exe'!"
-            Status.BackColor = Color.FromArgb(240, 200, 200)
-            My.Computer.Audio.PlaySystemSound( _
-                Media.SystemSounds.Hand)
+            UpdateStatus("Can't find the file 'srcds.exe' at: " & srcdsFinalPath, True)
         End If
     End Sub
 
@@ -686,9 +685,8 @@ Public Class MainMenu
         SaveFileDialog1.Filter = "Extensible Markup Language (*.xml)|*.xml"
         SaveFileDialog1.FileName = "Config.xml"
 
-        If SrcdsExePath = Nothing Then
-            Status.Text = "Please, select where is located the file 'srcds.exe'."
-            Status.BackColor = Color.FromArgb(240, 200, 200)
+        If String.IsNullOrWhiteSpace(SrcdsExePath) Then
+            UpdateStatus("Please, select where is located the file 'srcds.exe'.", True)
         Else
             If SaveFileDialog1.ShowDialog() = DialogResult.OK Then
                 Dim ConfigFile As String = SaveFileDialog1.FileName
@@ -751,13 +749,13 @@ Public Class MainMenu
                         .WriteString(AdditionalCommands)
                         .WriteEndElement()
                     End If
+                    .WriteEndElement() 'Close Server-Config
+                    .WriteEndElement() 'Close Config
                     .WriteEndDocument()
                 End With
                 XmlWrt.Close()
-                Status.Text = Path.GetFileName(ConfigFile) & " file saved."
-                Status.BackColor = Color.FromArgb(240, 240, 240)
-                My.Computer.Audio.PlaySystemSound( _
-                  Media.SystemSounds.Exclamation)
+                UpdateStatus(Path.GetFileName(ConfigFile) & " file saved.")
+                My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Exclamation)
             End If
         End If
     End Sub
@@ -768,67 +766,70 @@ Public Class MainMenu
         XmlConfigOpenFileDialog.Filter = "Extensible Markup Language (*.xml)|*.xml"
 
         If XmlConfigOpenFileDialog.ShowDialog() = DialogResult.OK Then
-            Dim XmlConfig As XmlReader = New XmlTextReader(XmlConfigOpenFileDialog.FileName)
-            While (XmlConfig.Read())
-                Dim type = XmlConfig.NodeType
-                If (type = XmlNodeType.Element) Then
-                    If (XmlConfig.Name = "SteamCMD") Then
-                        SteamCMDExePath = XmlConfig.ReadInnerXml.ToString()
+            Try
+                Dim XmlConfig As XmlReader = New XmlTextReader(XmlConfigOpenFileDialog.FileName)
+                While (XmlConfig.Read())
+                    Dim type = XmlConfig.NodeType
+                    If (type = XmlNodeType.Element) Then
+                        If (XmlConfig.Name = "SteamCMD") Then
+                            SteamCMDExePath = XmlConfig.ReadInnerXml.ToString()
+                        End If
+                        If (XmlConfig.Name = "Path") Then
+                            SrcdsExePath = XmlConfig.ReadInnerXml.ToString()
+                            SrcdsExePathTextBox.Text = SrcdsExePath
+                            MapList.Enabled = True
+                            CFGMenu.Enabled = True
+                            CommonFilesMenu.Enabled = True
+                            SMMenu.Enabled = True
+                            RunServerButton.Enabled = True
+                            SrcdsExePathOpen.Enabled = True
+                        End If
+                        If (XmlConfig.Name = "HostName") Then
+                            ServerNameTextBox.Text = XmlConfig.ReadInnerXml.ToString()
+                        End If
+                        If (XmlConfig.Name = "Mod") Then
+                            ModList.Text = XmlConfig.ReadInnerXml.ToString()
+                            'Define the game with ModList.Text
+                            ModList_SelectedIndex()
+                        End If
+                        If (XmlConfig.Name = "CustomMod") Then
+                            CustomModTextBox.Text = XmlConfig.ReadInnerXml.ToString
+                            CustomModCheckBox.Checked = True
+                        End If
+                        If (XmlConfig.Name = "Map") Then
+                            MapList.Enabled = True
+                            ServerMap = XmlConfig.ReadInnerXml.ToString()
+                            MapList.Text = ServerMap
+                        End If
+                        If (XmlConfig.Name = "Network") Then
+                            NetworkComboBox.SelectedIndex = XmlConfig.ReadInnerXml.ToString()
+                        End If
+                        If (XmlConfig.Name = "Players") Then
+                            MaxPlayers = XmlConfig.ReadInnerXml.ToString
+                            MaxPlayersTexBox.Value = MaxPlayers
+                        End If
+                        If (XmlConfig.Name = "RCON") Then
+                            RCON = XmlConfig.ReadInnerXml.ToString
+                            RconTextBox.Text = RCON
+                            CheckBoxMask.Checked = True
+                        End If
+                        If (XmlConfig.Name = "Port") Then
+                            UDPPort = XmlConfig.ReadInnerXml.ToString
+                            UDPPortTexBox.Value = UDPPort
+                        End If
+                        If (XmlConfig.Name = "AdditionalCommands") Then
+                            AdditionalCommands = XmlConfig.ReadInnerXml.ToString
+                        End If
                     End If
-                    If (XmlConfig.Name = "Path") Then
-                        SrcdsExePath = XmlConfig.ReadInnerXml.ToString()
-                        SrcdsExePathTextBox.Text = SrcdsExePath
-                        MapList.Enabled = True
-                        CFGMenu.Enabled = True
-                        CommonFilesMenu.Enabled = True
-                        SMMenu.Enabled = True
-                        RunServerButton.Enabled = True
-                        SrcdsExePathOpen.Enabled = True
-                    End If
-                    If (XmlConfig.Name = "HostName") Then
-                        ServerNameTextBox.Text = XmlConfig.ReadInnerXml.ToString()
-                    End If
-                    If (XmlConfig.Name = "Mod") Then
-                        ModList.Text = XmlConfig.ReadInnerXml.ToString()
-                        'Define the game with ModList.Text
-                        ModList_SelectedIndex()
-                    End If
-                    If (XmlConfig.Name = "CustomMod") Then
-                        CustomModTextBox.Text = XmlConfig.ReadInnerXml.ToString
-                        CustomModCheckBox.Checked = True
-                    End If
-                    If (XmlConfig.Name = "Map") Then
-                        MapList.Enabled = True
-                        ServerMap = XmlConfig.ReadInnerXml.ToString()
-                        MapList.Text = ServerMap
-                    End If
-                    If (XmlConfig.Name = "Network") Then
-                        NetworkComboBox.SelectedIndex = XmlConfig.ReadInnerXml.ToString()
-                    End If
-                    If (XmlConfig.Name = "Players") Then
-                        MaxPlayers = XmlConfig.ReadInnerXml.ToString
-                        MaxPlayersTexBox.Value = MaxPlayers
-                    End If
-                    If (XmlConfig.Name = "RCON") Then
-                        RCON = XmlConfig.ReadInnerXml.ToString
-                        RconTextBox.Text = RCON
-                        CheckBoxMask.Checked = True
-                    End If
-                    If (XmlConfig.Name = "Port") Then
-                        UDPPort = XmlConfig.ReadInnerXml.ToString
-                        UDPPortTexBox.Value = UDPPort
-                    End If
-                    If (XmlConfig.Name = "AdditionalCommands") Then
-                        AdditionalCommands = XmlConfig.ReadInnerXml.ToString
-                    End If
-                End If
-            End While
-            XmlConfig.Close()
-            TabMenu.SelectedTab = RunTab
-            GroupBox1.Show()
-            GroupBox3.Show()
-            Status.Text = "The config file has been loaded."
-            Status.BackColor = Color.FromArgb(240, 240, 240)
+                End While
+                XmlConfig.Close()
+                TabMenu.SelectedTab = RunTab
+                GroupBox1.Show()
+                GroupBox3.Show()
+                UpdateStatus("The config file has been loaded.")
+            Catch ex As Exception
+                UpdateStatus("Error loading config file: " & ex.Message, True)
+            End Try
         End If
     End Sub
 
@@ -850,14 +851,11 @@ Public Class MainMenu
                     'This works thanks to Hans Passant ^^
                 Next
             Else
-                Status.Text = "Can't find the CFG folder. New one created."
+                UpdateStatus("Can't find the CFG folder. New one created.")
                 Directory.CreateDirectory(cfgfolderpath)
             End If
         Else
-            Status.Text = "Can't find the server files!"
-            Status.BackColor = Color.FromArgb(240, 200, 200)
-            My.Computer.Audio.PlaySystemSound( _
-                Media.SystemSounds.Hand)
+            UpdateStatus("Can't find the server files!", True)
         End If
     End Sub
 
@@ -874,7 +872,7 @@ Public Class MainMenu
         If SaveFileDialog1.ShowDialog() = DialogResult.OK Then
             File.Create(SaveFileDialog1.FileName).Dispose()
             Process.Start(SaveFileDialog1.FileName)
-            Status.Text = "File " & SaveFileDialog1.FileName & " has been saved."
+            UpdateStatus("File " & SaveFileDialog1.FileName & " has been saved.")
         End If
     End Sub
 
@@ -886,7 +884,7 @@ Public Class MainMenu
         Else
             File.Create(MotdPath).Dispose()
             Process.Start(MotdPath)
-            Status.Text = TxtFile.Text & " file not found. New one created."
+            UpdateStatus(TxtFile.Text & " file not found. New one created.")
         End If
     End Sub
 
@@ -905,10 +903,7 @@ Public Class MainMenu
                     AddHandler item.Click, AddressOf SMFileMenuItems_Click
                 Next
             Else
-                Status.Text = "Seems that SourceMod isn't installed."
-                Status.BackColor = Color.FromArgb(240, 200, 200)
-                My.Computer.Audio.PlaySystemSound( _
-                    Media.SystemSounds.Hand)
+                UpdateStatus("Seems that SourceMod isn't installed.", True)
             End If
         End If
     End Sub
@@ -958,10 +953,7 @@ Public Class MainMenu
                     ConsoleInput.Enabled = False
                     ConsoleButton.Enabled = False
                 End If
-                Status.Text = "SteamCMD closed."
-                Status.BackColor = Color.FromArgb(240, 200, 200)
-                My.Computer.Audio.PlaySystemSound( _
-                    Media.SystemSounds.Hand)
+                UpdateStatus("SteamCMD closed.", True)
             End If
         Next proc
     End Sub
@@ -980,7 +972,7 @@ Public Class MainMenu
             AndAlso (SaveFileDialog1.FileName.Length > 0) Then
             File.WriteAllText(SaveFileDialog1.FileName, ConsoleOutput.Text)
             Process.Start(SaveFileDialog1.FileName)
-            Status.Text = "File " & Path.GetFileName(SaveFileDialog1.FileName) & " has been saved in Logs folder."
+            UpdateStatus("File " & Path.GetFileName(SaveFileDialog1.FileName) & " has been saved in Logs folder.")
         End If
     End Sub
 
@@ -988,7 +980,7 @@ Public Class MainMenu
         Dim result As Integer = MessageBox.Show("Really want to clear all the content?", "Clear console", MessageBoxButtons.YesNo)
         If result = DialogResult.Yes Then
             ConsoleOutput.Clear()
-            Status.Text = "The console has been cleaned."
+            UpdateStatus("The console has been cleaned.")
         End If
     End Sub
 
@@ -1028,31 +1020,37 @@ Public Class MainMenu
         GamesList.DataSource = New BindingSource(GameDictionary, Nothing)
 
         GamesList.SelectedIndex = GamesList.FindStringExact(Name)
-
+        UpdateStatus("Added custom game: " & Name)
     End Sub
 
     Private Sub LoadGamesList()
-        Dim XmlDoc As XmlReader = New XmlTextReader("Settings/SteamCMDGames.xml")
-        'XmlDoc.ReadToFollowing("Games")
-        While (XmlDoc.Read())
-            Dim type = XmlDoc.NodeType
-            If (type = XmlNodeType.Element) Then
-                If (XmlDoc.Name = "Game") Then
-                    XmlDoc.MoveToAttribute("id")
-                    Dim ID As String = XmlDoc.Value
-                    XmlDoc.Read() 'move pointer to next node part
-                    If (XmlDoc.NodeType = XmlNodeType.Text) Then
-                        Dim Name As String = XmlDoc.Value
-                        GameDictionary.Add(ID, Name)
+        Try
+            Dim XmlDoc As XmlReader = New XmlTextReader("Settings/SteamCMDGames.xml")
+            'XmlDoc.ReadToFollowing("Games")
+            While (XmlDoc.Read())
+                Dim type = XmlDoc.NodeType
+                If (type = XmlNodeType.Element) Then
+                    If (XmlDoc.Name = "Game") Then
+                        XmlDoc.MoveToAttribute("id")
+                        Dim ID As String = XmlDoc.Value
+                        XmlDoc.Read() 'move pointer to next node part
+                        If (XmlDoc.NodeType = XmlNodeType.Text) Then
+                            Dim Name As String = XmlDoc.Value
+                            GameDictionary.Add(ID, Name)
+                        End If
                     End If
                 End If
-            End If
 
-        End While
-        XmlDoc.Close()
+            End While
+            XmlDoc.Close()
+        Catch ex As Exception
+            UpdateStatus("Error loading games list: " & ex.Message, True)
+            InitializeDefaultGamesList()
+        End Try
     End Sub
 
     Private Sub InitializeDefaultGamesList()
+        GameDictionary.Clear()
         GameDictionary.Add("635", "Alien Swarm")
         GameDictionary.Add("740", "Counter-Strike: Global Offensive")
         GameDictionary.Add("232330", "Counter-Strike: Source")
@@ -1090,7 +1088,6 @@ Public Class MainMenu
 
     Private Sub IPButton_Click() Handles IPButton.Click
         Clipboard.SetText(PublicIP, TextDataFormat.UnicodeText)
-        Status.Text = "Public IP copied"
-        Status.BackColor = Color.FromArgb(240, 240, 240)
+        UpdateStatus("Public IP copied")
     End Sub
 End Class
