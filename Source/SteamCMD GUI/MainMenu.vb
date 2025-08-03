@@ -4,6 +4,7 @@ Imports System.IO
 Imports System.Net
 Imports System.Xml
 Imports System.Text
+Imports System.Xml.Linq
 
 Module Module1
     Public SteamCMDExePath, SteamAppID, Login, ServerPathInstallation, ValidateApp, GoldSrcMod, Program, Game, PathForLog As String
@@ -55,19 +56,14 @@ Public Class MainMenu
         End If
         If File.Exists("Settings/SteamCMDPath.xml") Then
             Try
-                Dim XmlConfig As XmlReader = New XmlTextReader("Settings/SteamCMDPath.xml")
-                While (XmlConfig.Read())
-                    Dim type = XmlConfig.NodeType
-                    If (type = XmlNodeType.Element) Then
-                        If (XmlConfig.Name = "CMDPath") Then
-                            ExePath.Text = XmlConfig.ReadInnerXml.ToString()
-                            FolderBrowserDialog1.SelectedPath = ExePath.Text
-                            SteamCMDExePath = ExePath.Text
-                            LogMenu.Enabled = True
-                        End If
-                    End If
-                End While
-                XmlConfig.Close()
+                Dim xDoc = XDocument.Load("Settings/SteamCMDPath.xml")
+                Dim cmdPathElement = xDoc.Descendants("CMDPath").FirstOrDefault()
+                If cmdPathElement IsNot Nothing Then
+                    ExePath.Text = cmdPathElement.Value
+                    FolderBrowserDialog1.SelectedPath = ExePath.Text
+                    SteamCMDExePath = ExePath.Text
+                    LogMenu.Enabled = True
+                End If
             Catch ex As Exception
                 UpdateStatus("Error reading SteamCMD path configuration: " & ex.Message, True)
             End Try
@@ -190,24 +186,14 @@ Public Class MainMenu
                 ExePath.Text = FolderBrowserDialog1.SelectedPath
                 SteamCMDExePath = FolderBrowserDialog1.SelectedPath
 
-                Dim CMDConfig As New XmlWriterSettings()
-                CMDConfig.Indent = True
-
-                Dim XmlWrt As XmlWriter = XmlWriter.Create("Settings/SteamCMDPath.xml", CMDConfig)
-                With XmlWrt
-                    .WriteStartDocument()
-                    .WriteComment("Config used by SteamCMD GUI")
-                    .WriteComment("This config it's loaded automatically.")
-                    .WriteStartElement("SteamCMD-Config")
-
-                    .WriteStartElement("CMDPath")
-                    .WriteString(SteamCMDExePath)
-                    .WriteEndElement()
-
-                    .WriteEndElement()
-                    .WriteEndDocument()
-                End With
-                XmlWrt.Close()
+                Dim xDoc As New XDocument(
+                    New XComment("Config used by SteamCMD GUI"),
+                    New XComment("This config it's loaded automatically."),
+                    New XElement("SteamCMD-Config",
+                        New XElement("CMDPath", SteamCMDExePath)
+                    )
+                )
+                xDoc.Save("Settings/SteamCMDPath.xml")
 
                 LogMenu.Enabled = True
                 UpdateStatus("Current path of 'steamcmd.exe' is " & FolderBrowserDialog1.SelectedPath)
@@ -342,8 +328,18 @@ Public Class MainMenu
     Private ThrSteamCMD As Thread
     Private WithEvents p As Process
 
+    Private Delegate Sub EnableConsoleInputDelegate()
+    Private Sub EnableConsoleInput()
+        If Me.InvokeRequired Then
+            Me.Invoke(New EnableConsoleInputDelegate(AddressOf EnableConsoleInput))
+        Else
+            ConsoleInput.Enabled = True
+            ConsoleButton.Enabled = True
+        End If
+    End Sub
+
     Private Sub ThreadTaskSteamCMD()
-        Control.CheckForIllegalCrossThreadCalls = False
+        ' Control.CheckForIllegalCrossThreadCalls = False ' This is unsafe, using Invoke instead
         p = New Process
         With (p.StartInfo)
             .FileName = SteamCMDExePath & "\steamcmd.exe"
@@ -361,8 +357,7 @@ Public Class MainMenu
             Dim pStreamWriter As StreamWriter = p.StandardInput
             p.BeginOutputReadLine()
             p.BeginErrorReadLine()
-            ConsoleInput.Enabled = True
-            ConsoleButton.Enabled = True
+            EnableConsoleInput() ' Safely enable console controls
             p.WaitForExit()
         End If
     End Sub
@@ -421,36 +416,30 @@ Public Class MainMenu
     End Sub
 
     Private Sub ModList_SelectedIndex() Handles ModList.SelectedIndexChanged, ModList.EnabledChanged
-        If ModList.Text = "Alien Swarm" Then
-            GameMod = "alienswarm"
-        End If
-        If ModList.Text = "Counter-Strike: Global Offensive" Then
-            GameMod = "csgo"
-        End If
-        If ModList.Text = "Counter-Strike: Source" Then
-            GameMod = "cstrike"
-        End If
-        If ModList.Text = "Day of Defeat: Source" Then
-            GameMod = "dod"
-        End If
-        If ModList.Text = "Dota 2" Then
-            GameMod = "dota"
-        End If
-        If ModList.Text = "Garry's Mod" Then
-            GameMod = "garrysmod"
-        End If
-        If ModList.Text = "Half-Life 2: Deathmatch" Then
-            GameMod = "hl2mp"
-        End If
-        If ModList.Text = "Left 4 Dead" Then
-            GameMod = "left4dead"
-        End If
-        If ModList.Text = "Left 4 Dead 2" Then
-            GameMod = "left4dead2"
-        End If
-        If ModList.Text = "Team Fortress 2" Then
-            GameMod = "tf"
-        End If
+        Select Case ModList.Text
+            Case "Alien Swarm"
+                GameMod = "alienswarm"
+            Case "Counter-Strike: Global Offensive"
+                GameMod = "csgo"
+            Case "Counter-Strike: Source"
+                GameMod = "cstrike"
+            Case "Day of Defeat: Source"
+                GameMod = "dod"
+            Case "Dota 2"
+                GameMod = "dota"
+            Case "Garry's Mod"
+                GameMod = "garrysmod"
+            Case "Half-Life 2: Deathmatch"
+                GameMod = "hl2mp"
+            Case "Left 4 Dead"
+                GameMod = "left4dead"
+            Case "Left 4 Dead 2"
+                GameMod = "left4dead2"
+            Case "Team Fortress 2"
+                GameMod = "tf"
+            Case Else
+                GameMod = "" ' Handle case where no match is found
+        End Select
         UpdateStatus("Game/Mod to run: " & ModList.Text & " - Game parameter: " & GameMod)
     End Sub
 
@@ -689,72 +678,37 @@ Public Class MainMenu
             UpdateStatus("Please, select where is located the file 'srcds.exe'.", True)
         Else
             If SaveFileDialog1.ShowDialog() = DialogResult.OK Then
-                Dim ConfigFile As String = SaveFileDialog1.FileName
-                Dim Config As New XmlWriterSettings()
-                Config.Indent = True
+                Dim configFile = SaveFileDialog1.FileName
+                Dim serverConfigElements As New List(Of XElement)
+                serverConfigElements.Add(New XElement("HostName", ServerName))
 
-                Dim XmlWrt As XmlWriter = XmlWriter.Create(ConfigFile, Config)
-                With XmlWrt
-                    .WriteStartDocument()
-                    .WriteComment("Config used by SteamCMD GUI")
-                    .WriteStartElement("Config")
+                If ModList.Enabled = False Then
+                    serverConfigElements.Add(New XElement("CustomMod", CustomModTextBox.Text))
+                Else
+                    serverConfigElements.Add(New XElement("Mod", ModList.Text))
+                End If
 
-                    .WriteStartElement("Srcds-Config")
+                serverConfigElements.Add(New XElement("Map", ServerMap))
+                serverConfigElements.Add(New XElement("Network", NetworkType))
+                serverConfigElements.Add(New XElement("Players", MaxPlayers))
+                serverConfigElements.Add(New XElement("RCON", RCON))
+                serverConfigElements.Add(New XElement("Port", UDPPort))
 
-                    .WriteStartElement("Path")
-                    .WriteString(SrcdsExePath)
-                    .WriteEndElement()
+                If Not String.IsNullOrWhiteSpace(AdditionalCommands) Then
+                    serverConfigElements.Add(New XElement("AdditionalCommands", AdditionalCommands))
+                End If
 
-                    .WriteEndElement()
-
-                    .WriteStartElement("Server-Config")
-
-                    .WriteStartElement("HostName")
-                    .WriteString(ServerName)
-                    .WriteEndElement()
-
-                    If ModList.Enabled = False Then
-                        .WriteStartElement("CustomMod")
-                        .WriteString(CustomModTextBox.Text)
-
-                    Else
-                        .WriteStartElement("Mod")
-                        .WriteString(ModList.Text)
-
-                    End If
-                    .WriteEndElement()
-
-                    .WriteStartElement("Map")
-                    .WriteString(ServerMap)
-                    .WriteEndElement()
-
-                    .WriteStartElement("Network")
-                    .WriteString(NetworkType)
-                    .WriteEndElement()
-
-                    .WriteStartElement("Players")
-                    .WriteString(MaxPlayers)
-                    .WriteEndElement()
-
-                    .WriteStartElement("RCON")
-                    .WriteString(RCON)
-                    .WriteEndElement()
-
-                    .WriteStartElement("Port")
-                    .WriteString(UDPPort)
-                    .WriteEndElement()
-
-                    If Not AdditionalCommands = Nothing Then
-                        .WriteStartElement("AdditionalCommands")
-                        .WriteString(AdditionalCommands)
-                        .WriteEndElement()
-                    End If
-                    .WriteEndElement() 'Close Server-Config
-                    .WriteEndElement() 'Close Config
-                    .WriteEndDocument()
-                End With
-                XmlWrt.Close()
-                UpdateStatus(Path.GetFileName(ConfigFile) & " file saved.")
+                Dim xDoc As New XDocument(
+                    New XComment("Config used by SteamCMD GUI"),
+                    New XElement("Config",
+                        New XElement("Srcds-Config",
+                            New XElement("Path", SrcdsExePath)
+                        ),
+                        New XElement("Server-Config", serverConfigElements)
+                    )
+                )
+                xDoc.Save(configFile)
+                UpdateStatus(Path.GetFileName(configFile) & " file saved.")
                 My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Exclamation)
             End If
         End If
@@ -767,62 +721,56 @@ Public Class MainMenu
 
         If XmlConfigOpenFileDialog.ShowDialog() = DialogResult.OK Then
             Try
-                Dim XmlConfig As XmlReader = New XmlTextReader(XmlConfigOpenFileDialog.FileName)
-                While (XmlConfig.Read())
-                    Dim type = XmlConfig.NodeType
-                    If (type = XmlNodeType.Element) Then
-                        If (XmlConfig.Name = "SteamCMD") Then
-                            SteamCMDExePath = XmlConfig.ReadInnerXml.ToString()
-                        End If
-                        If (XmlConfig.Name = "Path") Then
-                            SrcdsExePath = XmlConfig.ReadInnerXml.ToString()
-                            SrcdsExePathTextBox.Text = SrcdsExePath
-                            MapList.Enabled = True
-                            CFGMenu.Enabled = True
-                            CommonFilesMenu.Enabled = True
-                            SMMenu.Enabled = True
-                            RunServerButton.Enabled = True
-                            SrcdsExePathOpen.Enabled = True
-                        End If
-                        If (XmlConfig.Name = "HostName") Then
-                            ServerNameTextBox.Text = XmlConfig.ReadInnerXml.ToString()
-                        End If
-                        If (XmlConfig.Name = "Mod") Then
-                            ModList.Text = XmlConfig.ReadInnerXml.ToString()
-                            'Define the game with ModList.Text
-                            ModList_SelectedIndex()
-                        End If
-                        If (XmlConfig.Name = "CustomMod") Then
-                            CustomModTextBox.Text = XmlConfig.ReadInnerXml.ToString
-                            CustomModCheckBox.Checked = True
-                        End If
-                        If (XmlConfig.Name = "Map") Then
-                            MapList.Enabled = True
-                            ServerMap = XmlConfig.ReadInnerXml.ToString()
-                            MapList.Text = ServerMap
-                        End If
-                        If (XmlConfig.Name = "Network") Then
-                            NetworkComboBox.SelectedIndex = XmlConfig.ReadInnerXml.ToString()
-                        End If
-                        If (XmlConfig.Name = "Players") Then
-                            MaxPlayers = XmlConfig.ReadInnerXml.ToString
-                            MaxPlayersTexBox.Value = MaxPlayers
-                        End If
-                        If (XmlConfig.Name = "RCON") Then
-                            RCON = XmlConfig.ReadInnerXml.ToString
-                            RconTextBox.Text = RCON
-                            CheckBoxMask.Checked = True
-                        End If
-                        If (XmlConfig.Name = "Port") Then
-                            UDPPort = XmlConfig.ReadInnerXml.ToString
-                            UDPPortTexBox.Value = UDPPort
-                        End If
-                        If (XmlConfig.Name = "AdditionalCommands") Then
-                            AdditionalCommands = XmlConfig.ReadInnerXml.ToString
-                        End If
-                    End If
-                End While
-                XmlConfig.Close()
+                Dim xDoc = XDocument.Load(XmlConfigOpenFileDialog.FileName)
+                Dim config = xDoc.Root
+
+                ' Helper to get element value or nothing
+                Func(Of String, String) getValue = Function(name) config.Descendants(name).FirstOrDefault()?.Value
+
+                SrcdsExePath = getValue("Path")
+                If Not String.IsNullOrEmpty(SrcdsExePath) Then
+                    SrcdsExePathTextBox.Text = SrcdsExePath
+                    MapList.Enabled = True
+                    CFGMenu.Enabled = True
+                    CommonFilesMenu.Enabled = True
+                    SMMenu.Enabled = True
+                    RunServerButton.Enabled = True
+                    SrcdsExePathOpen.Enabled = True
+                End If
+
+                ServerNameTextBox.Text = getValue("HostName")
+
+                Dim modValue = getValue("Mod")
+                If Not String.IsNullOrEmpty(modValue) Then
+                    ModList.Text = modValue
+                    ModList_SelectedIndex()
+                End If
+
+                Dim customModValue = getValue("CustomMod")
+                If Not String.IsNullOrEmpty(customModValue) Then
+                    CustomModTextBox.Text = customModValue
+                    CustomModCheckBox.Checked = True
+                End If
+
+                ServerMap = getValue("Map")
+                MapList.Text = ServerMap
+                If Not String.IsNullOrEmpty(ServerMap) Then MapList.Enabled = True
+
+                Dim networkValue = getValue("Network")
+                If Not String.IsNullOrEmpty(networkValue) Then NetworkComboBox.SelectedIndex = CInt(networkValue)
+
+                MaxPlayers = getValue("Players")
+                MaxPlayersTexBox.Text = MaxPlayers
+
+                RCON = getValue("RCON")
+                RconTextBox.Text = RCON
+                CheckBoxMask.Checked = Not String.IsNullOrEmpty(RCON)
+
+                UDPPort = getValue("Port")
+                UDPPortTexBox.Text = UDPPort
+
+                AdditionalCommands = getValue("AdditionalCommands")
+
                 TabMenu.SelectedTab = RunTab
                 GroupBox1.Show()
                 GroupBox3.Show()
@@ -1025,24 +973,11 @@ Public Class MainMenu
 
     Private Sub LoadGamesList()
         Try
-            Dim XmlDoc As XmlReader = New XmlTextReader("Settings/SteamCMDGames.xml")
-            'XmlDoc.ReadToFollowing("Games")
-            While (XmlDoc.Read())
-                Dim type = XmlDoc.NodeType
-                If (type = XmlNodeType.Element) Then
-                    If (XmlDoc.Name = "Game") Then
-                        XmlDoc.MoveToAttribute("id")
-                        Dim ID As String = XmlDoc.Value
-                        XmlDoc.Read() 'move pointer to next node part
-                        If (XmlDoc.NodeType = XmlNodeType.Text) Then
-                            Dim Name As String = XmlDoc.Value
-                            GameDictionary.Add(ID, Name)
-                        End If
-                    End If
-                End If
-
-            End While
-            XmlDoc.Close()
+            Dim xDoc = XDocument.Load("Settings/SteamCMDGames.xml")
+            GameDictionary = xDoc.Descendants("Game").ToDictionary(
+                Function(g) g.Attribute("id").Value,
+                Function(g) g.Value
+            )
         Catch ex As Exception
             UpdateStatus("Error loading games list: " & ex.Message, True)
             InitializeDefaultGamesList()
@@ -1066,24 +1001,15 @@ Public Class MainMenu
     End Sub
 
     Private Sub WriteOutDictionaryAsXml(ByVal dict As Dictionary(Of String, String))
-        Dim XmlSettings As XmlWriterSettings = New XmlWriterSettings()
-        XmlSettings.Indent = True
-        Dim XmlWrt As XmlWriter = XmlWriter.Create("Settings/SteamCMDGames.xml", XmlSettings)
-
-        XmlWrt.WriteStartDocument()
-        XmlWrt.WriteComment("Custom Games Config used by SteamCMD GUI")
-        XmlWrt.WriteComment("This config is loaded automatically.")
-        XmlWrt.WriteStartElement("SteamCMD-Games")
-
-        For Each kvp As KeyValuePair(Of String, String) In dict
-            XmlWrt.WriteStartElement("Game")
-            XmlWrt.WriteAttributeString("id", kvp.Key)
-            XmlWrt.WriteString(kvp.Value)
-            XmlWrt.WriteEndElement()
-        Next
-        XmlWrt.WriteEndElement()
-        XmlWrt.WriteEndDocument()
-        XmlWrt.Close()
+        Dim xDoc As New XDocument(
+            New XComment("Custom Games Config used by SteamCMD GUI"),
+            New XComment("This config is loaded automatically."),
+            New XElement("SteamCMD-Games",
+                From kvp In dict
+                Select New XElement("Game", New XAttribute("id", kvp.Key), kvp.Value)
+            )
+        )
+        xDoc.Save("Settings/SteamCMDGames.xml")
     End Sub
 
     Private Sub IPButton_Click() Handles IPButton.Click
