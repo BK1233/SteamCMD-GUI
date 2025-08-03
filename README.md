@@ -19,7 +19,6 @@
 
 *Graphical interface for **[SteamCMD]**.*
 
-[![Button Tutorials]][Tutorials]   
 [![Button Authors]][Authors]   
 [![Button Changelog]][Changelog]
 
@@ -49,16 +48,15 @@ edit files such as `MOTD` or `maplist` in only a few clicks.
 
 *The following downloads are **Windows** only.*
 
-| GitHub | GameBanana | DropBox |
-| :---: | :---: | :---: |
-| [![Button GitHub]][GitHub] | [![Button GameBanana]][GameBanana] | [![Button DropBox]][DropBox] |
+| GitHub | GameBanana |
+| :---: | :---: |
+| [![Button GitHub]][GitHub] | [![Button GameBanana]][GameBanana] |
 
 </div>
 
 <!----------------------------------------------------------------------------->
 
 [Changelog]: Documentation/Changelog.md
-[Tutorials]: Documentation/Tutorials.md
 [Authors]: Documentation/Authors.md
 [License]: LICENSE 'This project is licensed under CreativeCommons BY SA 4.0'
 [Logo]: Media/Logo.png
@@ -67,13 +65,12 @@ edit files such as `MOTD` or `maplist` in only a few clicks.
 
 [GameBanana]: http://gamebanana.com/tools/5560
 [SteamCMD]: https://developer.valvesoftware.com/wiki/SteamCMD
-[DropBox]: https://www.dropbox.com/s/ie9iv5d0mvp2x22/SteamCMD%20GUI.zip?dl=0
 [GitHub]: https://github.com/BK1233/SteamCMD-GUI/releases/latest
 
 
 <!---------------------------------[ Badges ]---------------------------------->
 
-[Badge Authors]: https://img.shields.io/badge/Creator-Raúl_Jiménez-008a99.svg?style=for-the-badge&labelColor=00ACC1&logoColor=white
+[Badge Authors]: https://img.shields.io/badge/Creator-BeeKay-008a99.svg?style=for-the-badge&labelColor=00ACC1&logoColor=white
 [Badge License]: https://img.shields.io/badge/-BY--SA--4.0-ae6c18.svg?style=for-the-badge&labelColor=EF9421&logoColor=white&logo=CreativeCommons
 
 
@@ -81,7 +78,5 @@ edit files such as `MOTD` or `maplist` in only a few clicks.
 
 [Button GameBanana]: https://img.shields.io/badge/GameBanana-f6e664?style=for-the-badge&logoColor=black&logo=GitLFS
 [Button Changelog]: https://img.shields.io/badge/Changelog-4285F4?style=for-the-badge&logoColor=white&logo=Git
-[Button Tutorials]: https://img.shields.io/badge/Tutorials-E23237?style=for-the-badge&logoColor=white&logo=YouTube
 [Button Authors]: https://img.shields.io/badge/Authors-00968F?style=for-the-badge&logoColor=white&logo=BookStack
-[Button DropBox]: https://img.shields.io/badge/DropBox-0061FF?style=for-the-badge&logoColor=white&logo=DropBox
 [Button GitHub]: https://img.shields.io/badge/GitHub-222222?style=for-the-badge&logoColor=white&logo=GitHub
