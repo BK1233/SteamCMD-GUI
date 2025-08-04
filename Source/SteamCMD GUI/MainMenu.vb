@@ -71,7 +71,6 @@ Public Class MainMenu
     ' Strings
     Private CantFindSteamCMDString As String
     Private GameDictionary As New Dictionary(Of String, String)
-    Private rcon As RCON
 
     Dim WithEvents WC As New WebClient
 
@@ -724,7 +723,7 @@ Public Class MainMenu
     Private DestinationPath As String
     Private WithEvents BackupTimer As New Timer() With {.Interval = 24 * 60 * 60 * 1000} ' 24 hours
 
-    Private WithEvents ServerManager As New ServerManager()
+    Private WithEvents ServerManager As New ServerManager(Me)
     Private WithEvents UpdateManager As New UpdateManager(My.Application.Info.DirectoryPath & "\steamcmd.exe")
 
     Private Sub CheckForUpdatesButton_Click(sender As Object, e As EventArgs) Handles CheckForUpdatesButton.Click
@@ -767,150 +766,5 @@ Public Class MainMenu
 
     Private Sub UpdateManager_ErrorOccurred(message As String) Handles UpdateManager.ErrorOccurred
         MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-    End Sub
-End Class
-
-Public Class ServerProfile
-    Public Property Name As String
-    Public Property SrcdsPath As String
-    Public Property GameMod As String
-    Public Property IsCustomMod As Boolean
-    Public Property ServerName As String
-    Public Property Map As String
-    Public Property NetworkType As Integer
-    Public Property MaxPlayers As Integer
-    Public Property RconPassword As String
-    Public Property UdpPort As Integer
-    Public Property Is64Bit As Boolean
-    Public Property DebugMode As Boolean
-    Public Property SourceTV As Boolean
-    Public Property ConsoleMode As Boolean
-    Public Property InsecureMode As Boolean
-    Public Property NoBots As Boolean
-    Public Property DevMode As Boolean
-    Public Property AdditionalCommands As String
-End Class
-
-Public Class ServerManager
-    Private ReadOnly mainMenu As MainMenu
-
-    Public ReadOnly Property SteamCMDExePath As String
-    Public ReadOnly Property SteamAppID As String
-    Public ReadOnly Property Login As String
-    Public ReadOnly Property ServerPathInstallation As String
-    Public ReadOnly Property ValidateApp As String
-    Public ReadOnly Property GoldSrcMod As String
-    Public ReadOnly Property Program As String
-    Public ReadOnly Property Game As String
-    Public ReadOnly Property PathForLog As String
-    Public ReadOnly Property SrcdsExePath As String
-    Public ReadOnly Property GameMod As String
-    Public ReadOnly Property ServerName As String
-    Public ReadOnly Property ServerMap As String
-    Public ReadOnly Property NetworkType As String
-    Public ReadOnly Property MaxPlayers As String
-    Public ReadOnly Property RCON As String
-    Public ReadOnly Property UDPPort As String
-    Public ReadOnly Property DebugMode As String
-    Public ReadOnly Property SourceTV As String
-    Public ReadOnly Property ConsoleMode As String
-    Public ReadOnly Property InsecureMode As String
-    Public ReadOnly Property NoBots As String
-    Public ReadOnly Property DevMode As String
-    Public ReadOnly Property Parameters As String
-    Public ReadOnly Property AdditionalCommands As String
-
-    Public Sub New(ByVal mainMenu As MainMenu)
-        Me.mainMenu = mainMenu
-        Me.SteamCMDExePath = mainMenu.SteamCMDExePath
-        Me.SteamAppID = mainMenu.SteamAppID
-        Me.Login = mainMenu.Login
-        Me.ServerPathInstallation = mainMenu.ServerPathInstallation
-        Me.ValidateApp = mainMenu.ValidateApp
-        Me.GoldSrcMod = mainMenu.GoldSrcMod
-        Me.Program = mainMenu.Program
-        Me.Game = mainMenu.Game
-        Me.PathForLog = mainMenu.PathForLog
-        Me.SrcdsExePath = mainMenu.SrcdsExePath
-        Me.GameMod = mainMenu.GameMod
-        Me.ServerName = mainMenu.ServerName
-        Me.ServerMap = mainMenu.ServerMap
-        Me.NetworkType = mainMenu.NetworkType
-
-        Me.MaxPlayers = mainMenu.MaxPlayers
-        Me.RCON = mainMenu.RCON
-        Me.UDPPort = mainMenu.UDPPort
-        Me.DebugMode = mainMenu.DebugMode
-        Me.SourceTV = mainMenu.SourceTV
-        Me.ConsoleMode = mainMenu.ConsoleMode
-        Me.InsecureMode = mainMenu.InsecureMode
-        Me.NoBots = mainMenu.NoBots
-        Me.DevMode = mainMenu.DevMode
-        Me.Parameters = mainMenu.Parameters
-        Me.AdditionalCommands = mainMenu.AdditionalCommands
-    End Sub
-
-    Public Sub RunServer()
-        Dim baseServerPath As String = mainMenu.SrcdsExePathTextBox.Text
-        If String.IsNullOrWhiteSpace(baseServerPath) Then
-            mainMenu.UpdateStatus("SRCDS path is not set. Please configure it in the 'Run' tab.", True)
-            Return
-        End If
-
-        Dim is64Bit As Boolean = mainMenu.Is64BitCheckBox.Checked
-        Dim srcdsFinalPath As String = If(is64Bit, Path.Combine(baseServerPath, "bin", "win64", "srcds.exe"), Path.Combine(baseServerPath, "srcds.exe"))
-
-        If Not My.Computer.FileSystem.FileExists(srcdsFinalPath) Then
-            mainMenu.UpdateStatus("Can't find 'srcds.exe' at: " & srcdsFinalPath, True)
-            Return
-        End If
-
-        If String.IsNullOrWhiteSpace(GameMod) Then
-            mainMenu.UpdateStatus("Please, select a game.", True)
-            Return
-        End If
-
-        If String.IsNullOrWhiteSpace(mainMenu.ServerNameTextBox.Text) Then
-            mainMenu.UpdateStatus("Please, type a name for the server.", True)
-            Return
-        End If
-
-        If String.IsNullOrWhiteSpace(mainMenu.MapList.Text) Then
-            mainMenu.UpdateStatus("Select the default map.", True)
-            Return
-        End If
-
-        Dim argsBuilder As New StringBuilder()
-        argsBuilder.Append(DebugMode)
-        argsBuilder.Append(SourceTV)
-        argsBuilder.Append(ConsoleMode)
-        argsBuilder.Append(InsecureMode)
-        argsBuilder.Append(NoBots)
-        argsBuilder.Append(DevMode)
-        argsBuilder.AppendFormat("-game {0} ", GameMod)
-        argsBuilder.AppendFormat("-port {0} ", UDPPort)
-        argsBuilder.AppendFormat("+hostname ""{0}"" ", mainMenu.ServerNameTextBox.Text)
-        argsBuilder.AppendFormat("+map {0} ", mainMenu.MapList.Text)
-        argsBuilder.AppendFormat("+maxplayers {0} ", mainMenu.MaxPlayersTexBox.Text)
-        argsBuilder.AppendFormat("+sv_lan {0} ", mainMenu.NetworkComboBox.SelectedIndex)
-        argsBuilder.Append(AdditionalCommands)
-
-        mainMenu.UpdateStatus("Running server...")
-
-        Dim p As New Process
-        With p.StartInfo
-            .FileName = srcdsFinalPath
-            .UseShellExecute = False
-            .CreateNoWindow = False
-            .UseShellExecute = False
-            .CreateNoWindow = False
-            .Arguments = argsBuilder.ToString()
-        End With
-
-        Try
-            p.Start()
-        Catch ex As Exception
-            mainMenu.UpdateStatus("Failed to start server: " & ex.Message, True)
-        End Try
     End Sub
 End Class
