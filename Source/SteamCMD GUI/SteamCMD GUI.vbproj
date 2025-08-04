@@ -65,6 +65,11 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Sockets" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="CoreRCON, Version=5.4.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\CoreRCON.5.4.2\lib\netstandard2.0\CoreRCON.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
@@ -119,25 +124,48 @@
     <Compile Include="LoadingScreen.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="RconClient.vb" />
+    <Compile Include="BackupManager.vb" />
+    <Compile Include="WorkshopManager.vb" />
+    <Compile Include="ServerManager.vb" />
+    <Compile Include="UpdateManager.vb" />
+    <Compile Include="Resources\Strings.en.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.en.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\Strings.es.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.es.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="AboutWindow.resx">
+      <DependentUpon>AboutWindow.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CommandsWindow.resx">
       <DependentUpon>CommandsWindow.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LoadingScreen.resx">
+      <DependentUpon>LoadingScreen.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainMenu.resx">
       <DependentUpon>MainMenu.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="AboutWindow.resx">
-      <DependentUpon>AboutWindow.vb</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
-      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="LoadingScreen.resx">
-      <DependentUpon>LoadingScreen.vb</DependentUpon>
+    <EmbeddedResource Include="Resources\Strings.en.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.en.Designer.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Strings.es.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.es.Designer.vb</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -151,21 +179,37 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+    <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\BannerSplash.png" />
     <None Include="Resources\CCLicense.png" />
     <None Include="Resources\SteamCMDGUI_Logo.png" />
-    <None Include="Resources\Icons\Folder.png" />
-    <None Include="Resources\Icons\Help.png" />
-    <None Include="Resources\Icons\Save.png" />
-    <None Include="Resources\Icons\Add.png" />
+    <None Include="Resources\Icons\add_circle_24.png" />
+    <None Include="Resources\Icons\backup_24.png" />
+    <None Include="Resources\Icons\block_24.png" />
+    <None Include="Resources\Icons\check_24.png" />
+    <None Include="Resources\Icons\clear_24.png" />
+    <None Include="Resources\Icons\connect_24.png" />
+    <None Include="Resources\Icons\delete_24.png" />
+    <None Include="Resources\Icons\folder_open_24.png" />
+    <None Include="Resources\Icons\help_circle_24.png" />
+    <None Include="Resources\Icons\minus_24.png" />
+    <None Include="Resources\Icons\plus_24.png" />
+    <None Include="Resources\Icons\refresh_24.png" />
+    <None Include="Resources\Icons\restore_24.png" />
+    <None Include="Resources\Icons\save_24.png" />
+    <None Include="Resources\Icons\search_24.png" />
+    <None Include="Resources\Icons\server_24.png" />
     <None Include="Resources\Icons\SteamCMDGUI_Icon.ico" />
+    <None Include="Resources\Icons\update_24.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\Icons\Clear.png" />
-    <Content Include="Resources\Icons\Connect.png" />
     <Content Include="Resources\SteamCMDGames.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\SteamCMDGUI_Logo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

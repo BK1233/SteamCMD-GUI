@@ -2,11 +2,11 @@
 Imports System.Reflection
 Imports System.Runtime.InteropServices
 
-' La información general sobre un ensamblado se controla mediante el siguiente 
-' conjunto de atributos. Cambie estos atributos para modificar la información
-' asociada con un ensamblado.
+' General Information about an assembly is controlled through the following 
+' set of attributes. Change these attribute values to modify the information
+' associated with an assembly.
 
-' Revisar los valores de los atributos del ensamblado
+' Review the values of the assembly attributes
 
 <Assembly: AssemblyTitle("Graphical interface for SteamCMD")> 
 <Assembly: AssemblyDescription("Graphical interface for SteamCMD")> 
@@ -17,21 +17,21 @@ Imports System.Runtime.InteropServices
 
 <Assembly: ComVisible(False)> 
 
-'El siguiente GUID sirve como identificador de typelib si este proyecto se expone a COM
+'The following GUID is for the ID of the typelib if this project is exposed to COM
 <Assembly: Guid("b8ca1f97-cc21-419e-8c6b-51e643c0e997")> 
 
-' La información de versión de un ensamblado consta de los cuatro valores siguientes:
+' Version information for an assembly consists of the following four values:
 '
-'      Versión principal
-'      Versión secundaria 
-'      Número de compilación
-'      Revisión
+'      Major Version
+'      Minor Version 
+'      Build Number
+'      Revision
 '
-' Puede especificar todos los valores o usar los valores predeterminados de número de compilación y de revisión 
-' mediante el asterisco ('*'), como se muestra a continuación:
+' You can specify all the values or you can default the Build and Revision Numbers 
+' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("3.1.0.2")> 
-<Assembly: AssemblyFileVersion("3.1.0.2")> 
+<Assembly: AssemblyVersion("3.1.1.0")> 
+<Assembly: AssemblyFileVersion("3.1.1.0")> 
 
-<Assembly: NeutralResourcesLanguageAttribute("en")> 
+<Assembly: NeutralResourcesLanguageAttribute("en")>

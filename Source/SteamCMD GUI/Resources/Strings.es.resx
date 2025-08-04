@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, ...</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, ...</value>
+  </resheader>
+  <!-- MainMenu UI Strings -->
+  <data name="MainMenu_Title" xml:space="preserve">
+    <value>SteamCMD GUI</value>
+  </data>
+  <data name="Tab_LogViewer" xml:space="preserve">
+    <value>Visor de Registros</value>
+  </data>
+  <data name="Tab_RCON" xml:space="preserve">
+    <value>Cliente RCON</value>
+  </data>
+  <data name="Label_Search" xml:space="preserve">
+    <value>Buscar</value>
+  </data>
+  <data name="Button_Search" xml:space="preserve">
+    <value>Encontrar</value>
+  </data>
+  <data name="CheckBox_AutoScroll" xml:space="preserve">
+    <value>Desplazamiento Automático</value>
+  </data>
+  <data name="GroupBox_RconConnection" xml:space="preserve">
+    <value>Conexión</value>
+  </data>
+  <data name="Label_RconHost" xml:space="preserve">
+    <value>Host</value>
+  </data>
+  <data name="Label_RconPort" xml:space="preserve">
+    <value>Puerto</value>
+  </data>
+  <data name="Label_RconPassword" xml:space="preserve">
+    <value>Contraseña</value>
+  </data>
+  <data name="Button_RconConnect" xml:space="preserve">
+    <value>Conectar</value>
+  </data>
+  <data name="Button_RconDisconnect" xml:space="preserve">
+    <value>Desconectar</value>
+  </data>
+  <data name="GroupBox_RconConsole" xml:space="preserve">
+    <value>Consola</value>
+  </data>
+  <data name="Button_RconSend" xml:space="preserve">
+    <value>Enviar</value>
+  </data>
+  <!-- Config Editor UI Strings -->
+  <data name="Tab_ConfigEditor" xml:space="preserve">
+    <value>Editor de Configuración</value>
+  </data>
+  <data name="Button_OpenFile" xml:space="preserve">
+    <value>Abrir Carpeta</value>
+  </data>
+  <data name="Button_Refresh" xml:space="preserve">
+    <value>Actualizar</value>
+  </data>
+  <data name="Button_Save" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <!-- Backup/Restore UI Strings -->
+  <data name="Tab_BackupRestore" xml:space="preserve">
+    <value>Copia de Seguridad/Restaurar</value>
+  </data>
+  <data name="GroupBox_CreateBackup" xml:space="preserve">
+    <value>Crear Copia de Seguridad</value>
+  </data>
+  <data name="Button_SelectSource" xml:space="preserve">
+    <value>Seleccionar Origen</value>
+  </data>
+  <data name="Button_SelectDestination" xml:space="preserve">
+    <value>Seleccionar Destino</value>
+  </data>
+  <data name="Button_CreateBackup" xml:space="preserve">
+    <value>Crear Copia de Seguridad</value>
+  </data>
+  <data name="GroupBox_RestoreBackup" xml:space="preserve">
+    <value>Restaurar Copia de Seguridad</value>
+  </data>
+  <data name="Button_RestoreBackup" xml:space="preserve">
+    <value>Restaurar Seleccionado</value>
+  </data>
+  <data name="Button_DeleteBackup" xml:space="preserve">
+    <value>Eliminar Seleccionado</value>
+  </data>
+  <data name="GroupBox_Schedule" xml:space="preserve">
+    <value>Programar</value>
+  </data>
+  <data name="CheckBox_EnableSchedule" xml:space="preserve">
+    <value>Habilitar Copias de Seguridad Diarias</value>
+  </data>
+  <!-- Workshop Mods UI Strings -->
+  <data name="Tab_WorkshopMods" xml:space="preserve">
+    <value>Mods de Workshop</value>
+  </data>
+  <data name="Button_ModSearch" xml:space="preserve">
+    <value>Buscar Mods</value>
+  </data>
+  <data name="Button_ModSubscribe" xml:space="preserve">
+    <value>Suscribirse</value>
+  </data>
+  <data name="Button_ModUnsubscribe" xml:space="preserve">
+    <value>Cancelar Suscripción</value>
+  </data>
+  <data name="Button_ModUpdate" xml:space="preserve">
+    <value>Actualizar</value>
+  </data>
+  <data name="Button_ModEnable" xml:space="preserve">
+    <value>Activar</value>
+  </data>
+  <data name="Button_ModDisable" xml:space="preserve">
+    <value>Desactivar</value>
+  </data>
+  <data name="Label_ModSearch" xml:space="preserve">
+    <value>Buscar</value>
+  </data>
+  <data name="Label_ModList" xml:space="preserve">
+    <value>Lista de Mods</value>
+  </data>
+</root>

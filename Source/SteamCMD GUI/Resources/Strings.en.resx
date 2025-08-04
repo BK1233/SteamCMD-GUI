@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, ...</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, ...</value>
+  </resheader>
+  <!-- MainMenu UI Strings -->
+  <data name="MainMenu_Title" xml:space="preserve">
+    <value>SteamCMD GUI</value>
+  </data>
+  <data name="Tab_LogViewer" xml:space="preserve">
+    <value>Log Viewer</value>
+  </data>
+  <data name="Tab_RCON" xml:space="preserve">
+    <value>RCON Client</value>
+  </data>
+  <data name="Label_Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Button_Search" xml:space="preserve">
+    <value>Find</value>
+  </data>
+  <data name="CheckBox_AutoScroll" xml:space="preserve">
+    <value>Auto-Scroll</value>
+  </data>
+  <data name="GroupBox_RconConnection" xml:space="preserve">
+    <value>Connection</value>
+  </data>
+  <data name="Label_RconHost" xml:space="preserve">
+    <value>Host</value>
+  </data>
+  <data name="Label_RconPort" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="Label_RconPassword" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Button_RconConnect" xml:space="preserve">
+    <value>Connect</value>
+  </data>
+  <data name="Button_RconDisconnect" xml:space="preserve">
+    <value>Disconnect</value>
+  </data>
+  <data name="GroupBox_RconConsole" xml:space="preserve">
+    <value>Console</value>
+  </data>
+  <data name="Button_RconSend" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <!-- Config Editor UI Strings -->
+  <data name="Tab_ConfigEditor" xml:space="preserve">
+    <value>Config Editor</value>
+  </data>
+  <data name="Button_OpenFile" xml:space="preserve">
+    <value>Open Folder</value>
+  </data>
+  <data name="Button_Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Button_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <!-- Backup/Restore UI Strings -->
+  <data name="Tab_BackupRestore" xml:space="preserve">
+    <value>Backup/Restore</value>
+  </data>
+  <data name="GroupBox_CreateBackup" xml:space="preserve">
+    <value>Create Backup</value>
+  </data>
+  <data name="Button_SelectSource" xml:space="preserve">
+    <value>Select Source</value>
+  </data>
+  <data name="Button_SelectDestination" xml:space="preserve">
+    <value>Select Destination</value>
+  </data>
+  <data name="Button_CreateBackup" xml:space="preserve">
+    <value>Create Backup</value>
+  </data>
+  <data name="GroupBox_RestoreBackup" xml:space="preserve">
+    <value>Restore Backup</value>
+  </data>
+  <data name="Button_RestoreBackup" xml:space="preserve">
+    <value>Restore Selected</value>
+  </data>
+  <data name="Button_DeleteBackup" xml:space="preserve">
+    <value>Delete Selected</value>
+  </data>
+  <data name="GroupBox_Schedule" xml:space="preserve">
+    <value>Schedule</value>
+  </data>
+  <data name="CheckBox_EnableSchedule" xml:space="preserve">
+    <value>Enable Daily Backups</value>
+  </data>
+  <!-- Workshop Mods UI Strings -->
+  <data name="Tab_WorkshopMods" xml:space="preserve">
+    <value>Workshop Mods</value>
+  </data>
+  <data name="Button_ModSearch" xml:space="preserve">
+    <value>Search Mods</value>
+  </data>
+  <data name="Button_ModSubscribe" xml:space="preserve">
+    <value>Subscribe</value>
+  </data>
+  <data name="Button_ModUnsubscribe" xml:space="preserve">
+    <value>Unsubscribe</value>
+  </data>
+  <data name="Button_ModUpdate" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="Button_ModEnable" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="Button_ModDisable" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="Label_ModSearch" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Label_ModList" xml:space="preserve">
+    <value>Mod List</value>
+  </data>
+</root>

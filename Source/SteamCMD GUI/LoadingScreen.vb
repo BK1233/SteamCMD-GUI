@@ -1,9 +1,11 @@
 ﻿Public NotInheritable Class LoadingScreen
-    Private Sub SplashScreen1_Load() Handles Me.Load
-        InfoLabelSplash.Text = "Dio Joestar" & Chr(13) & "Version: " & System.String.Format(InfoLabelSplash.Text, My.Application.Info.Version.Major, My.Application.Info.Version.Minor, My.Application.Info.Version.Build, My.Application.Info.Version.Revision) & Chr(13) & "CC BY-NC-SA 4.0"
-        'Transparent things
+    Private Sub LoadingScreen_Load(sender As Object, e As EventArgs) Handles Me.Load
+        ' Set the info label text using string interpolation and assembly information.
+        InfoLabelSplash.Text = $"{My.Application.Info.CompanyName}{Environment.NewLine}Version: {My.Application.Info.Version}{Environment.NewLine}CC BY-NC-SA 4.0"
+
+        ' Make the label background transparent.
         TransparencyKey = BackColor
         InfoLabelSplash.Parent = BannerSplash
-        InfoLabelSplash.Location.Offset(-BannerSplash.Left, -BannerSplash.Top)
+        InfoLabelSplash.Location = New Point(InfoLabelSplash.Location.X - BannerSplash.Left, InfoLabelSplash.Location.Y - BannerSplash.Top)
     End Sub
 End Class
