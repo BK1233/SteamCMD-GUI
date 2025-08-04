@@ -97,43 +97,6 @@ Partial Class MainMenu
         Me.DeleteBackupButton = New System.Windows.Forms.Button()
         Me.BackupScheduleGroupBox = New System.Windows.Forms.GroupBox()
         Me.EnableScheduleCheckBox = New System.Windows.Forms.CheckBox()
-        Me.WorkshopModsTab = New System.Windows.Forms.TabPage()
-        Me.ModEnableButton = New System.Windows.Forms.Button()
-        Me.ModDisableButton = New System.Windows.Forms.Button()
-        Me.ModUpdateButton = New System.Windows.Forms.Button()
-        Me.ModUnsubscribeButton = New System.Windows.Forms.Button()
-        Me.ModSubscribeButton = New System.Windows.Forms.Button()
-        Me.ModSearchButton = New System.Windows.Forms.Button()
-        Me.ModSearchTextBox = New System.Windows.Forms.TextBox()
-        Me.ModListLabel = New System.Windows.Forms.Label()
-        Me.ModSearchLabel = New System.Windows.Forms.Label()
-        Me.ModListBox = New System.Windows.Forms.ListBox()
-        Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
-        Me.FileMenu = New System.Windows.Forms.ToolStripMenuItem()
-        Me.SaveMenu = New System.Windows.Forms.ToolStripMenuItem()
-        Me.LoadMenu = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator()
-        Me.ExitMenu = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolsMenu = New System.Windows.Forms.ToolStripMenuItem()
-        Me.CommonFilesMenu = New System.Windows.Forms.ToolStripMenuItem()
-        Me.MotdTxtButton = New System.Windows.Forms.ToolStripMenuItem()
-        Me.MapcycleTxtButton = New System.Windows.Forms.ToolStripMenuItem()
-        Me.MaplistTxtButton = New System.Windows.Forms.ToolStripMenuItem()
-        Me.CFGMenu = New System.Windows.Forms.ToolStripMenuItem()
-        Me.NewFileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
-        Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
-        Me.SMMenu = New System.Windows.Forms.ToolStripMenuItem()
-        Me.Empty = New System.Windows.Forms.ToolStripMenuItem()
-        Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.LogMenu = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolStripMenuItem4 = New System.Windows.Forms.ToolStripMenuItem()
-        Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.XmlConfigOpenFileDialog = New System.Windows.Forms.OpenFileDialog()
-        Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog()
-        Me.DonateButton = New System.Windows.Forms.PictureBox()
-        Me.IPTextbox = New System.Windows.Forms.TextBox()
-        Me.IPButton = New System.Windows.Forms.Button()
         Me.UpdatesTab = New System.Windows.Forms.TabPage()
         Me.UpdatesLabel = New System.Windows.Forms.Label()
         Me.CheckForUpdatesButton = New System.Windows.Forms.Button()
@@ -153,10 +116,9 @@ Partial Class MainMenu
         Me.CreateBackupGroupBox.SuspendLayout()
         Me.RestoreBackupGroupBox.SuspendLayout()
         Me.BackupScheduleGroupBox.SuspendLayout()
-        Me.WorkshopModsTab.SuspendLayout()
+        Me.UpdatesTab.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.DonateButton, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.UpdatesTab.SuspendLayout()
         Me.SuspendLayout()
         '
         'GamesList
@@ -394,7 +356,6 @@ Partial Class MainMenu
         Me.TabControl1.Controls.Add(Me.RconTab)
         Me.TabControl1.Controls.Add(Me.ConfigEditorTab)
         Me.TabControl1.Controls.Add(Me.BackupRestoreTab)
-        Me.TabControl1.Controls.Add(Me.WorkshopModsTab)
         Me.TabControl1.Controls.Add(Me.UpdatesTab)
         Me.TabControl1.Location = New System.Drawing.Point(12, 36)
         Me.TabControl1.Name = "TabControl1"
@@ -788,242 +749,6 @@ Partial Class MainMenu
         Me.EnableScheduleCheckBox.Text = "Enable Daily Backups"
         Me.EnableScheduleCheckBox.UseVisualStyleBackColor = True
         '
-        'WorkshopModsTab
-        '
-        Me.WorkshopModsTab.Controls.Add(Me.ModEnableButton)
-        Me.WorkshopModsTab.Controls.Add(Me.ModDisableButton)
-        Me.WorkshopModsTab.Controls.Add(Me.ModUpdateButton)
-        Me.WorkshopModsTab.Controls.Add(Me.ModUnsubscribeButton)
-        Me.WorkshopModsTab.Controls.Add(Me.ModSubscribeButton)
-        Me.WorkshopModsTab.Controls.Add(Me.ModSearchButton)
-        Me.WorkshopModsTab.Controls.Add(Me.ModSearchTextBox)
-        Me.WorkshopModsTab.Controls.Add(Me.ModListLabel)
-        Me.WorkshopModsTab.Controls.Add(Me.ModSearchLabel)
-        Me.WorkshopModsTab.Controls.Add(Me.ModListBox)
-        Me.WorkshopModsTab.Location = New System.Drawing.Point(4, 22)
-        Me.WorkshopModsTab.Name = "WorkshopModsTab"
-        Me.WorkshopModsTab.Padding = New System.Windows.Forms.Padding(3)
-        Me.WorkshopModsTab.Size = New System.Drawing.Size(776, 376)
-        Me.WorkshopModsTab.TabIndex = 4
-        Me.WorkshopModsTab.Text = "Workshop Mods"
-        Me.WorkshopModsTab.UseVisualStyleBackColor = True
-        '
-        'ModEnableButton
-        '
-        Me.ModEnableButton.Image = Global.SteamCMD_GUI.My.Resources.Resources.check_24
-        Me.ModEnableButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.ModEnableButton.Location = New System.Drawing.Point(340, 143)
-        Me.ModEnableButton.Name = "ModEnableButton"
-        Me.ModEnableButton.Size = New System.Drawing.Size(100, 23)
-        Me.ModEnableButton.TabIndex = 8
-        Me.ModEnableButton.Text = "Enable"
-        Me.ModEnableButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.ModEnableButton.UseVisualStyleBackColor = True
-        '
-        'ModDisableButton
-        '
-        Me.ModDisableButton.Image = Global.SteamCMD_GUI.My.Resources.Resources.block_24
-        Me.ModDisableButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.ModDisableButton.Location = New System.Drawing.Point(340, 172)
-        Me.ModDisableButton.Name = "ModDisableButton"
-        Me.ModDisableButton.Size = New System.Drawing.Size(100, 23)
-        Me.ModDisableButton.TabIndex = 9
-        Me.ModDisableButton.Text = "Disable"
-        Me.ModDisableButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.ModDisableButton.UseVisualStyleBackColor = True
-        '
-        'ModUpdateButton
-        '
-        Me.ModUpdateButton.Image = Global.SteamCMD_GUI.My.Resources.Resources.update_24
-        Me.ModUpdateButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.ModUpdateButton.Location = New System.Drawing.Point(340, 114)
-        Me.ModUpdateButton.Name = "ModUpdateButton"
-        Me.ModUpdateButton.Size = New System.Drawing.Size(100, 23)
-        Me.ModUpdateButton.TabIndex = 7
-        Me.ModUpdateButton.Text = "Update"
-        Me.ModUpdateButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.ModUpdateButton.UseVisualStyleBackColor = True
-        '
-        'ModUnsubscribeButton
-        '
-        Me.ModUnsubscribeButton.Image = Global.SteamCMD_GUI.My.Resources.Resources.minus_24
-        Me.ModUnsubscribeButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.ModUnsubscribeButton.Location = New System.Drawing.Point(340, 85)
-        Me.ModUnsubscribeButton.Name = "ModUnsubscribeButton"
-        Me.ModUnsubscribeButton.Size = New System.Drawing.Size(100, 23)
-        Me.ModUnsubscribeButton.TabIndex = 6
-        Me.ModUnsubscribeButton.Text = "Unsubscribe"
-        Me.ModUnsubscribeButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.ModUnsubscribeButton.UseVisualStyleBackColor = True
-        '
-        'ModSubscribeButton
-        '
-        Me.ModSubscribeButton.Image = Global.SteamCMD_GUI.My.Resources.Resources.plus_24
-        Me.ModSubscribeButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.ModSubscribeButton.Location = New System.Drawing.Point(340, 56)
-        Me.ModSubscribeButton.Name = "ModSubscribeButton"
-        Me.ModSubscribeButton.Size = New System.Drawing.Size(100, 23)
-        Me.ModSubscribeButton.TabIndex = 5
-        Me.ModSubscribeButton.Text = "Subscribe"
-        Me.ModSubscribeButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.ModSubscribeButton.UseVisualStyleBackColor = True
-        '
-        'ModSearchButton
-        '
-        Me.ModSearchButton.Image = Global.SteamCMD_GUI.My.Resources.Resources.search_24
-        Me.ModSearchButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.ModSearchButton.Location = New System.Drawing.Point(259, 5)
-        Me.ModSearchButton.Name = "ModSearchButton"
-        Me.ModSearchButton.Size = New System.Drawing.Size(75, 23)
-        Me.ModSearchButton.TabIndex = 2
-        Me.ModSearchButton.Text = "Search"
-        Me.ModSearchButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.ModSearchButton.UseVisualStyleBackColor = True
-        '
-        'MenuStrip1
-        '
-        Me.MenuStrip1.BackColor = System.Drawing.SystemColors.Menu
-        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileMenu, Me.ToolsMenu, Me.HelpToolStripMenuItem})
-        resources.ApplyResources(Me.MenuStrip1, "MenuStrip1")
-        Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System
-        '
-        'FileMenu
-        '
-        Me.FileMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SaveMenu, Me.LoadMenu, Me.ToolStripSeparator3, Me.ExitMenu})
-        Me.FileMenu.Name = "FileMenu"
-        resources.ApplyResources(Me.FileMenu, "FileMenu")
-        '
-        'SaveMenu
-        '
-        Me.SaveMenu.Name = "SaveMenu"
-        resources.ApplyResources(Me.SaveMenu, "SaveMenu")
-        '
-        'LoadMenu
-        '
-        Me.LoadMenu.Name = "LoadMenu"
-        resources.ApplyResources(Me.LoadMenu, "LoadMenu")
-        '
-        'ToolStripSeparator3
-        '
-        Me.ToolStripSeparator3.Name = "ToolStripSeparator3"
-        resources.ApplyResources(Me.ToolStripSeparator3, "ToolStripSeparator3")
-        '
-        'ExitMenu
-        '
-        Me.ExitMenu.Name = "ExitMenu"
-        resources.ApplyResources(Me.ExitMenu, "ExitMenu")
-        '
-        'ToolsMenu
-        '
-        Me.ToolsMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.CommonFilesMenu, Me.CFGMenu, Me.ToolStripSeparator4, Me.SMMenu})
-        Me.ToolsMenu.Name = "ToolsMenu"
-        resources.ApplyResources(Me.ToolsMenu, "ToolsMenu")
-        '
-        'CommonFilesMenu
-        '
-        Me.CommonFilesMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.MotdTxtButton, Me.MapcycleTxtButton, Me.MaplistTxtButton})
-        resources.ApplyResources(Me.CommonFilesMenu, "CommonFilesMenu")
-        Me.CommonFilesMenu.Name = "CommonFilesMenu"
-        '
-        'MotdTxtButton
-        '
-        Me.MotdTxtButton.Name = "MotdTxtButton"
-        resources.ApplyResources(Me.MotdTxtButton, "MotdTxtButton")
-        '
-        'MapcycleTxtButton
-        '
-        Me.MapcycleTxtButton.Name = "MapcycleTxtButton"
-        resources.ApplyResources(Me.MapcycleTxtButton, "MapcycleTxtButton")
-        '
-        'MaplistTxtButton
-        '
-        Me.MaplistTxtButton.Name = "MaplistTxtButton"
-        resources.ApplyResources(Me.MaplistTxtButton, "MaplistTxtButton")
-        '
-        'CFGMenu
-        '
-        Me.CFGMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.NewFileToolStripMenuItem, Me.ToolStripSeparator2})
-        resources.ApplyResources(Me.CFGMenu, "CFGMenu")
-        Me.CFGMenu.Name = "CFGMenu"
-        '
-        'NewFileToolStripMenuItem
-        '
-        Me.NewFileToolStripMenuItem.Name = "NewFileToolStripMenuItem"
-        resources.ApplyResources(Me.NewFileToolStripMenuItem, "NewFileToolStripMenuItem")
-        '
-        'ToolStripSeparator2
-        '
-        Me.ToolStripSeparator2.Name = "ToolStripSeparator2"
-        resources.ApplyResources(Me.ToolStripSeparator2, "ToolStripSeparator2")
-        '
-        'ToolStripSeparator4
-        '
-        Me.ToolStripSeparator4.Name = "ToolStripSeparator4"
-        resources.ApplyResources(Me.ToolStripSeparator4, "ToolStripSeparator4")
-        '
-        'SMMenu
-        '
-        Me.SMMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.Empty})
-        Me.SMMenu.Name = "SMMenu"
-        resources.ApplyResources(Me.SMMenu, "SMMenu")
-        '
-        'Empty
-        '
-        Me.Empty.Name = "Empty"
-        resources.ApplyResources(Me.Empty, "Empty")
-        '
-        'HelpToolStripMenuItem
-        '
-        Me.HelpToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.LogMenu, Me.AboutToolStripMenuItem})
-        Me.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem"
-        resources.ApplyResources(Me.HelpToolStripMenuItem, "HelpToolStripMenuItem")
-        '
-        'LogMenu
-        '
-        Me.LogMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripMenuItem4})
-        resources.ApplyResources(Me.LogMenu, "LogMenu")
-        Me.LogMenu.Name = "LogMenu"
-        '
-        'ToolStripMenuItem4
-        '
-        Me.ToolStripMenuItem4.Name = "ToolStripMenuItem4"
-        resources.ApplyResources(Me.ToolStripMenuItem4, "ToolStripMenuItem4")
-        '
-        'AboutToolStripMenuItem
-        '
-        Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
-        resources.ApplyResources(Me.AboutToolStripMenuItem, "AboutToolStripMenuItem")
-        '
-        'XmlConfigOpenFileDialog
-        '
-        Me.XmlConfigOpenFileDialog.RestoreDirectory = True
-        '
-        'DonateButton
-        '
-        Me.DonateButton.BackgroundImage = Global.SteamCMD_GUI.My.Resources.Resources.PPDonateButton
-        resources.ApplyResources(Me.DonateButton, "DonateButton")
-        Me.DonateButton.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.DonateButton.Name = "DonateButton"
-        Me.DonateButton.TabStop = False
-        '
-        'IPTextbox
-        '
-        Me.IPTextbox.Cursor = System.Windows.Forms.Cursors.IBeam
-        resources.ApplyResources(Me.IPTextbox, "IPTextbox")
-        Me.IPTextbox.Name = "IPTextbox"
-        Me.IPTextbox.ReadOnly = True
-        Me.IPTextbox.TabStop = False
-        '
-        'IPButton
-        '
-        Me.IPButton.BackColor = System.Drawing.Color.Transparent
-        resources.ApplyResources(Me.IPButton, "IPButton")
-        Me.IPButton.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.IPButton.Name = "IPButton"
-        Me.IPButton.TabStop = False
-        Me.IPButton.UseVisualStyleBackColor = False
-        '
         'UpdatesTab
         '
         Me.UpdatesTab.Controls.Add(Me.UpdatesLabel)
@@ -1107,8 +832,6 @@ Partial Class MainMenu
         Me.RestoreBackupGroupBox.ResumeLayout(False)
         Me.BackupScheduleGroupBox.ResumeLayout(False)
         Me.BackupScheduleGroupBox.PerformLayout()
-        Me.WorkshopModsTab.ResumeLayout(False)
-        Me.WorkshopModsTab.PerformLayout()
         Me.UpdatesTab.ResumeLayout(False)
         Me.UpdatesTab.PerformLayout()
         Me.MenuStrip1.ResumeLayout(False)
@@ -1185,17 +908,6 @@ Partial Class MainMenu
     Friend WithEvents DeleteBackupButton As System.Windows.Forms.Button
     Friend WithEvents BackupScheduleGroupBox As System.Windows.Forms.GroupBox
     Friend WithEvents EnableScheduleCheckBox As System.Windows.Forms.CheckBox
-    Friend WithEvents WorkshopModsTab As System.Windows.Forms.TabPage
-    Friend WithEvents ModEnableButton As System.Windows.Forms.Button
-    Friend WithEvents ModDisableButton As System.Windows.Forms.Button
-    Friend WithEvents ModUpdateButton As System.Windows.Forms.Button
-    Friend WithEvents ModUnsubscribeButton As System.Windows.Forms.Button
-    Friend WithEvents ModSubscribeButton As System.Windows.Forms.Button
-    Friend WithEvents ModSearchButton As System.Windows.Forms.Button
-    Friend WithEvents ModSearchTextBox As System.Windows.Forms.TextBox
-    Friend WithEvents ModListLabel As System.Windows.Forms.Label
-    Friend WithEvents ModSearchLabel As System.Windows.Forms.Label
-    Friend WithEvents ModListBox As System.Windows.Forms.ListBox
     Friend WithEvents UpdatesTab As System.Windows.Forms.TabPage
     Friend WithEvents UpdatesLabel As System.Windows.Forms.Label
     Friend WithEvents CheckForUpdatesButton As System.Windows.Forms.Button
@@ -1287,17 +999,6 @@ Partial Class MainMenu
     Friend WithEvents DeleteBackupButton As System.Windows.Forms.Button
     Friend WithEvents BackupScheduleGroupBox As System.Windows.Forms.GroupBox
     Friend WithEvents EnableScheduleCheckBox As System.Windows.Forms.CheckBox
-    Friend WithEvents WorkshopModsTab As System.Windows.Forms.TabPage
-    Friend WithEvents ModEnableButton As System.Windows.Forms.Button
-    Friend WithEvents ModDisableButton As System.Windows.Forms.Button
-    Friend WithEvents ModUpdateButton As System.Windows.Forms.Button
-    Friend WithEvents ModUnsubscribeButton As System.Windows.Forms.Button
-    Friend WithEvents ModSubscribeButton As System.Windows.Forms.Button
-    Friend WithEvents ModSearchButton As System.Windows.Forms.Button
-    Friend WithEvents ModSearchTextBox As System.Windows.Forms.TextBox
-    Friend WithEvents ModListLabel As System.Windows.Forms.Label
-    Friend WithEvents ModSearchLabel As System.Windows.Forms.Label
-    Friend WithEvents ModListBox As System.Windows.Forms.ListBox
     Friend WithEvents UpdatesTab As System.Windows.Forms.TabPage
     Friend WithEvents UpdatesLabel As System.Windows.Forms.Label
     Friend WithEvents CheckForUpdatesButton As System.Windows.Forms.Button

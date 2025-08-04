@@ -125,7 +125,6 @@
     </Compile>
     <Compile Include="RconClient.vb" />
     <Compile Include="BackupManager.vb" />
-    <Compile Include="WorkshopManager.vb" />
     <Compile Include="ServerManager.vb" />
     <Compile Include="UpdateManager.vb" />
     <Compile Include="Resources\Strings.en.Designer.vb">

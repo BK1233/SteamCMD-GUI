@@ -222,446 +222,48 @@ Public Class MainMenu
         DeleteBackupButton.Text = My.Resources.Strings_en.Button_DeleteBackup
         BackupScheduleGroupBox.Text = My.Resources.Strings_en.GroupBox_Schedule
         EnableScheduleCheckBox.Text = My.Resources.Strings_en.CheckBox_EnableSchedule
-        WorkshopModsTab.Text = My.Resources.Strings_en.Tab_WorkshopMods
-        ModSearchLabel.Text = My.Resources.Strings_en.Label_ModSearch
-        ModListLabel.Text = My.Resources.Strings_en.Label_ModList
-        ModSearchButton.Text = My.Resources.Strings_en.Button_ModSearch
-        ModSubscribeButton.Text = My.Resources.Strings_en.Button_ModSubscribe
-        ModUnsubscribeButton.Text = My.Resources.Strings_en.Button_ModUnsubscribe
-        ModUpdateButton.Text = My.Resources.Strings_en.Button_ModUpdate
-        ModEnableButton.Text = My.Resources.Strings_en.Button_ModEnable
-        ModDisableButton.Text = My.Resources.Strings_en.Button_ModDisable
+        ' WorkshopModsTab.Text = My.Resources.Strings_en.Tab_WorkshopMods
+        ' ModSearchLabel.Text = My.Resources.Strings_en.Label_ModSearch
+        ' ModListLabel.Text = My.Resources.Strings_en.Label_ModList
+        ' ModSearchButton.Text = My.Resources.Strings_en.Button_ModSearch
+        ' ModSubscribeButton.Text = My.Resources.Strings_en.Button_ModSubscribe
+        ' ModUnsubscribeButton.Text = My.Resources.Strings_en.Button_ModUnsubscribe
+        ' ModUpdateButton.Text = My.Resources.Strings_en.Button_ModUpdate
+        ' ModEnableButton.Text = My.Resources.Strings_en.Button_ModEnable
+        ' ModDisableButton.Text = My.Resources.Strings_en.Button_ModDisable
         UpdatesTab.Text = My.Resources.Strings_en.Tab_Updates
         CheckForUpdatesButton.Text = My.Resources.Strings_en.Button_CheckForUpdates
         InstallUpdateButton.Text = My.Resources.Strings_en.Button_InstallUpdate
     End Sub
 
     ' Workshop Mods logic
-    Private Sub ModSearchButton_Click(sender As Object, e As EventArgs) Handles ModSearchButton.Click
-        WorkshopManager.Search(AppIdTextBox.Text, SearchTextBox.Text)
-    End Sub
+    ' Private Sub ModSearchButton_Click(sender As Object, e As EventArgs) Handles ModSearchButton.Click
+    '     WorkshopManager.Search(AppIdTextBox.Text, SearchTextBox.Text)
+    ' End Sub
 
-    Private Sub InstallModButton_Click(sender As Object, e As EventArgs) Handles InstallModButton.Click
-        If WorkshopListBox.SelectedItem IsNot Nothing Then
-            Dim modId As String = WorkshopListBox.SelectedItem.ToString().Split(" "c)(0) ' Assuming format "ID - Name"
-            WorkshopManager.Install(AppIdTextBox.Text, modId)
-        End If
-    End Sub
-
-    ' WorkshopManager event handlers
-    Private Sub WorkshopManager_WorkshopSearchCompleted(results As List(Of String)) Handles WorkshopManager.WorkshopSearchCompleted
-        WorkshopListBox.Items.Clear()
-        For Each result As String In results
-            WorkshopListBox.Items.Add(result)
-        Next
-        MessageBox.Show("Workshop search completed.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Information)
-    End Sub
-
-    Private Sub WorkshopManager_WorkshopInstallCompleted(modId As String) Handles WorkshopManager.WorkshopInstallCompleted
-        MessageBox.Show($"Mod {modId} installed successfully.", "Install", MessageBoxButtons.OK, MessageBoxIcon.Information)
-    End Sub
-
-    Private Sub WorkshopManager_ErrorOccurred(message As String) Handles WorkshopManager.ErrorOccurred
-        MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-    End Sub
-
-    Private Async Function GetPublicIPAsync() As Task
-        If My.Computer.Network.IsAvailable Then
-            Try
-                PublicIP = Await WC.DownloadStringTaskAsync("http://ipv4.icanhazip.com/")
-                PublicIP = PublicIP.Trim()
-            Catch ex As WebException
-                PublicIP = "Network down"
-                UpdateStatus("Could not retrieve public IP: " & ex.Message, True)
-            End Try
-        Else
-            PublicIP = "Network down"
-        End If
-    End Function
-
-    Public Sub UpdateStatus(text As String, Optional isError As Boolean = False)
-        Dim color As Color = If(isError, Color.Red, Color.Black)
-        AppendOutputText(text, color)
-        Status.Text = String.Format("[{0}] {1}", DateTime.Now.ToString("HH:mm:ss"), text)
-        If isError Then
-            Status.BackColor = Color.FromArgb(240, 200, 200)
-            My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Hand)
-        Else
-            Status.BackColor = Color.FromArgb(240, 240, 240)
-        End If
-    End Sub
-
-    Private Sub Tips()
-        ToolTip1.SetToolTip(OpenFolderButton, "Open current folder")
-        ToolTip1.SetToolTip(CheckBoxMask, "Mask/Unmask RCON")
-        ToolTip1.SetToolTip(AddButton, "Add more command-line parameters")
-        ToolTip1.SetToolTip(ConsoleConnect, "Connect to server")
-        ToolTip1.SetToolTip(ConsoleOpenLog, "Open logs folder")
-        ToolTip1.SetToolTip(ConsoleSaveLog, "Save the current log")
-        ToolTip1.SetToolTip(ConsoleClearLog, "Clear log")
-        ToolTip1.SetToolTip(DonateButton, "Donate via PayPal")
-        CantFindSteamCMDString = "Can't find the file 'steamcmd.exe'!"
-    End Sub
-
-    Private Sub IPPrint() Handles ConsoleIPPrint.Click
-        Dim sb As New Text.StringBuilder()
-        sb.AppendLine("Local IP address(es):")
-        For Each LocalIP As Net.IPAddress In IPs.AddressList
-            sb.Append(vbTab).AppendLine(LocalIP.ToString())
-        Next
-        sb.AppendLine()
-        sb.AppendLine("Public IP address:")
-        sb.Append(vbTab).Append(PublicIP)
-        ConsoleOutput.Text = sb.ToString()
-        IPTextbox.Text = PublicIP
-    End Sub
-
-    ' Autosave log
-    Private Sub SaveLog()
-        Dim ConsoleContent As String = DateTime.Now & " from " & Program & vbCrLf & "______________________" & vbCrLf & Game & vbCrLf & PathForLog & vbCrLf & "______________________" & vbCrLf & ConsoleOutput.Text
-
-        Dim LogFileName As String = Program & " Log-" & DateTime.Now.ToString("dd.MM.yyyy") & " @ " & DateTime.Now.ToString("HH;mm")
-        File.WriteAllText("Logs\" & LogFileName & ".txt", ConsoleContent)
-    End Sub
-
-    ' Resize tabs
-    Private Sub Tab_Click() Handles UpdateTab.Enter, RunTab.Enter
-        If GroupBox1.Visible = False Then
-            GroupBox1.Show()
-            GroupBox3.Show()
-            AboutButton.Show()
-            ExitButton.Show()
-            DonateButton.Show()
-            DownloadBar.Show()
-            TabMenu.Size = New Size(417, 303)
-            Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0F, 13.0F)
-            Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        End If
-    End Sub
-
-    Private Sub ConsoleTab_Click() Handles ConsoleTab.Enter
-        GroupBox1.Hide()
-        GroupBox3.Hide()
-        AboutButton.Hide()
-        ExitButton.Hide()
-        DonateButton.Hide()
-        DownloadBar.Hide()
-        TabMenu.Size = New Size(588, 303)
-        ConsoleTab.Size = New Size(580, 277)
-        ConsoleOutput.Size = New Size(539, 238)
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0F, 13.0F)
-        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-    End Sub
-
-    ' Update/install server inputs
-    Private Sub SteamCMDDownload_Click() Handles SteamCMDDownloadButton.Click
-        SteamCMDDownloadButton.Enabled = False
-        If My.Computer.FileSystem.FileExists("steamcmd.zip") Then
-            UpdateStatus("The file has already been downloaded!", True)
-            SteamCMDDownloadButton.Enabled = True
-        Else
-            Try
-                WC.DownloadFileAsync(New Uri("http://media.steampowered.com/installer/steamcmd.zip"), "steamcmd.zip")
-                UpdateStatus("Downloading...")
-            Catch ex As Exception
-                UpdateStatus("Error downloading SteamCMD: " & ex.Message, True)
-                SteamCMDDownloadButton.Enabled = True
-            End Try
-        End If
-    End Sub
-
-    Private Sub OpenFolderButton_Click() Handles OpenFolderButton.Click
-        Process.Start("explorer.exe", ".")
-    End Sub
-
-    Private Sub WC_DownloadProgressChanged(ByVal sender As Object, ByVal e As DownloadProgressChangedEventArgs) Handles WC.DownloadProgressChanged
-        DownloadBar.Value = e.ProgressPercentage
-        If DownloadBar.Value = 100 Then
-            UpdateStatus("The file 'steamcmd.zip' has been downloaded. Please, unzip it.")
-            DownloadBar.Value = 0
-            My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Exclamation)
-            SteamCMDDownloadButton.Enabled = True
-        End If
-    End Sub
-
-    Private Sub ExePath_Browser() Handles ExePath.Click, ExeBrowserButton.Click
-        If FolderBrowserDialog1.ShowDialog() = DialogResult.OK Then
-            If My.Computer.FileSystem.FileExists(FolderBrowserDialog1.SelectedPath & "\steamcmd.exe") Then
-                ExePath.Text = FolderBrowserDialog1.SelectedPath
-                SteamCMDExePath = FolderBrowserDialog1.SelectedPath
-
-                Dim CMDConfig As New XmlWriterSettings()
-                CMDConfig.Indent = True
-
-                Dim XmlWrt As XmlWriter = XmlWriter.Create("Settings/SteamCMDPath.xml", CMDConfig)
-                With XmlWrt
-                    .WriteStartDocument()
-                    .WriteComment("Config used by SteamCMD GUI")
-                    .WriteComment("This config it's loaded automatically.")
-                    .WriteStartElement("SteamCMD-Config")
-
-                    .WriteStartElement("CMDPath")
-                    .WriteString(SteamCMDExePath)
-                    .WriteEndElement()
-
-                    .WriteEndElement()
-                    .WriteEndDocument()
-                End With
-                XmlWrt.Close()
-
-                LogMenu.Enabled = True
-                UpdateStatus("Current path of 'steamcmd.exe' is " & FolderBrowserDialog1.SelectedPath)
-            Else
-                LogMenu.Enabled = False
-                UpdateStatus(CantFindSteamCMDString & " Please select the correct installation folder.", True)
-            End If
-        End If
-    End Sub
-
-    Private Sub AnonymousCheckBox_CheckedChanged() Handles AnonymousCheckBox.CheckedChanged
-        If AnonymousCheckBox.Checked = True Then
-            UsernameTextBox.Enabled = False
-            PasswdTextBox.Enabled = False
-        Else
-            UsernameTextBox.Enabled = True
-            PasswdTextBox.Enabled = True
-        End If
-    End Sub
-
-    Private Sub IdHelpButton_Click() Handles IdHelpButton.Click
-        Try
-            Process.Start("https://developer.valvesoftware.com/wiki/Dedicated_Servers_List")
-        Catch ex As Exception
-            UpdateStatus($"Failed to open link: {ex.Message}", True)
-        End Try
-    End Sub
-
-    Private Sub BrowserButton_Browser() Handles BrowserButton.Click, ServerPath.Click
-        If FolderBrowserDialog1.ShowDialog() = DialogResult.OK Then
-            ServerPath.Text = FolderBrowserDialog1.SelectedPath
-            Dim ServerInstallPath As String
-            ServerInstallPath = FolderBrowserDialog1.SelectedPath
-        End If
-        If String.IsNullOrWhiteSpace(ServerPath.Text) Then
-            UpdateStatus("Please, select a folder for install/update the server.", True)
-        Else
-            UpdateStatus("The server will be installed/updated in '" & ServerPath.Text & "'")
-            UpdateServerButton.Enabled = True
-        End If
-    End Sub
-
-    Private Sub GamesList_SelectedIndexChanged() Handles GamesList.SelectedIndexChanged, GamesList.EnabledChanged
-        If TypeOf (GamesList.SelectedValue) Is KeyValuePair(Of String, String) Then
-            SteamAppID = GamesList.SelectedValue.Key
-        ElseIf TypeOf (GamesList.SelectedValue) Is Integer Then
-            SteamAppID = GamesList.SelectedValue.ToString()
-        ElseIf TypeOf (GamesList.SelectedValue) Is String Then
-            SteamAppID = GamesList.SelectedValue
-        End If
-
-
-        If Not SteamAppID = GOLDSRC_APP_ID.ToString() Then
-            GoldSrcModInput.Hide()
-            GoldSrcModLabel.Hide()
-            AddCustomGameButton.Show()
-        Else
-            GoldSrcModInput.Show()
-            GoldSrcModLabel.Show()
-            AddCustomGameButton.Hide()
-        End If
-        UpdateStatus("Game to install: " & GamesList.Text & " - Steam App ID:" & SteamAppID)
-    End Sub
-
-    Private Sub ValidateCheckBox_CheckedChanged() Handles ValidateCheckBox.CheckedChanged
-        If ValidateCheckBox.Checked = True Then
-            ValidateApp = " validate"
-            UpdateStatus("The files will be checked and validated.")
-        Else
-            ValidateApp = ""
-        End If
-    End Sub
-
-    Private Sub UpdateServerButton_Click() Handles UpdateServerButton.Click
-        If Not ValidateUpdateInputs() Then Return
-
-        SetLoginCredentials()
-
-        If Not AreCredentialsSet() Then Return
-
-        If Not IsServerPathSet() Then Return
-
-        SetGoldSrcMod()
-
-        ServerPathInstallation = Chr(34) & ServerPath.Text & Chr(34)
-        UpdateStatus("Installing/Updating...")
-
-        StartSteamCMDProcess()
-    End Sub
-
-    Private Function ValidateUpdateInputs() As Boolean
-        If Not My.Computer.FileSystem.FileExists(Path.Combine(SteamCMDExePath, "steamcmd.exe")) Then
-            UpdateStatus(CantFindSteamCMDString, True)
-            Return False
-        End If
-
-        If String.IsNullOrWhiteSpace(SteamAppID) Then
-            UpdateStatus("Please select a game to install/update.", True)
-            Return False
-        End If
-        Return True
-    End Function
-
-    Private Sub SetLoginCredentials()
-        If AnonymousCheckBox.Checked Then
-            Login = "anonymous"
-        Else
-            Login = $"{UsernameTextBox.Text} {PasswdTextBox.Text}"
-        End If
-    End Sub
-
-    Private Function AreCredentialsSet() As Boolean
-        If Not AnonymousCheckBox.Checked Then
-            If String.IsNullOrWhiteSpace(UsernameTextBox.Text) Then
-                UpdateStatus("Please, type your Steam name.", True)
-                Return False
-            End If
-            If String.IsNullOrWhiteSpace(PasswdTextBox.Text) Then
-                UpdateStatus("Please, type your Steam password. You can install many games as 'anonymous'.", True)
-                Return False
-            End If
-        End If
-        Return True
-    End Function
-
-    Private Function IsServerPathSet() As Boolean
-        If String.IsNullOrWhiteSpace(ServerPath.Text) Then
-            UpdateStatus("Please, select the path where you want to install the server.", True)
-            Return False
-        End If
-        Return True
-    End Function
-
-    Private Sub SetGoldSrcMod()
-        If GoldSrcModInput.Visible Then
-            If Not String.IsNullOrEmpty(GoldSrcModInput.Text) Then
-                GoldSrcMod = $" +app_set_config {GOLDSRC_APP_ID} mod {GoldSrcModInput.Text}"
-            Else
-                UpdateStatus("Half-Life mod not defined. Installing a default one.", True)
-                GoldSrcMod = $" +app_set_config {GOLDSRC_APP_ID} mod valve" ' Default to valve
-            End If
-        Else
-            GoldSrcMod = ""
-        End If
-    End Sub
-
-    Private Sub StartSteamCMDProcess()
-        If CheckBoxConsole.Checked Then
-            ConsoleTab_Click()
-            TabMenu.SelectedTab = ConsoleTab
-            ConsoleOutput.Clear()
-            ThrSteamCMD.Start()
-        Else
-            Try
-                Dim p As New Process
-                With p.StartInfo
-                    .FileName = Path.Combine(SteamCMDExePath, "steamcmd.exe")
-                    .UseShellExecute = False
-                    .Arguments = $"SteamCmd +login {Login} +force_install_dir ""{ServerPath.Text}""{GoldSrcMod} +app_update {SteamAppID}{ValidateApp}"
-                End With
-                p.Start()
-            Catch ex As Exception
-                UpdateStatus($"Failed to start SteamCMD: {ex.Message}", True)
-            End Try
-        End If
-    End Sub
-
-    Private ThrSteamCMD As Thread
-    Private WithEvents p As Process
-
-    Private Sub ThreadTaskSteamCMD()
-        Control.CheckForIllegalCrossThreadCalls = False
-        p = New Process
-        With (p.StartInfo)
-            .FileName = SteamCMDExePath & "\steamcmd.exe"
-            .UseShellExecute = False
-            .CreateNoWindow = True
-            .RedirectStandardOutput = True
-            .RedirectStandardInput = True
-            .RedirectStandardError = True
-            .Arguments = String.Format("SteamCmd +login {0} +force_install_dir {1}{2} +app_update {3}{4}", Login, ServerPathInstallation, GoldSrcMod, SteamAppID, ValidateApp)
-        End With
-
-        p.Start()
-
-        If CheckBoxConsole.Checked = True Then
-            Dim pStreamWriter As StreamWriter = p.StandardInput
-            p.BeginOutputReadLine()
-            p.BeginErrorReadLine()
-            ConsoleInput.Enabled = True
-            ConsoleButton.Enabled = True
-            p.WaitForExit()
-        End If
-    End Sub
-
-    Private Sub p_OutputDataReceived(ByVal sender As Object, ByVal e As System.Diagnostics.DataReceivedEventArgs) Handles p.OutputDataReceived
-        AppendOutputText(vbCrLf & e.Data, Color.DarkBlue)
-    End Sub
-
-    Private Sub ExecuteButton_Click() Handles ConsoleButton.Click
-        p.StandardInput.WriteLine(ConsoleInput.Text)
-        p.StandardInput.Flush()
-        ConsoleInput.Text = ""
-    End Sub
-
-    Private Delegate Sub AppendOutputTextDelegate(ByVal text As String, Optional color As Color = Nothing)
-    Private Sub AppendOutputText(ByVal text As String, Optional color As Color = Nothing)
-        If ConsoleOutput.InvokeRequired Then
-            Dim myDelegate As New AppendOutputTextDelegate(AddressOf AppendOutputText)
-            Me.Invoke(myDelegate, text, color)
-        Else
-            Dim timestamp As String = $"[{DateTime.Now:HH:mm:ss}] "
-            ConsoleOutput.SelectionStart = ConsoleOutput.TextLength
-            ConsoleOutput.SelectionLength = 0
-
-            ConsoleOutput.SelectionColor = Color.Gray
-            ConsoleOutput.AppendText(timestamp)
-
-            ConsoleOutput.SelectionColor = If(color, ConsoleOutput.ForeColor)
-            ConsoleOutput.AppendText(text)
-
-            If AutoScrollCheckBox.Checked Then
-                ConsoleOutput.ScrollToCaret()
-            End If
-        End Sub
-    End Sub
-
-    Private Sub SearchButton_Click(sender As Object, e As EventArgs) Handles SearchButton.Click
-        WorkshopManager.Search(AppIdTextBox.Text, SearchTextBox.Text)
-    End Sub
-
-    Private Sub InstallModButton_Click(sender As Object, e As EventArgs) Handles InstallModButton.Click
-        If WorkshopListBox.SelectedItem IsNot Nothing Then
-            Dim modId As String = WorkshopListBox.SelectedItem.ToString().Split(" "c)(0) ' Assuming format "ID - Name"
-            WorkshopManager.Install(AppIdTextBox.Text, modId)
-        End If
-    End Sub
+    ' Private Sub InstallModButton_Click(sender As Object, e As EventArgs) Handles InstallModButton.Click
+    '     If WorkshopListBox.SelectedItem IsNot Nothing Then
+    '         Dim modId As String = WorkshopListBox.SelectedItem.ToString().Split(" "c)(0) ' Assuming format "ID - Name"
+    '         WorkshopManager.Install(AppIdTextBox.Text, modId)
+    '     End If
+    ' End Sub
 
     ' WorkshopManager event handlers
-    Private Sub WorkshopManager_WorkshopSearchCompleted(results As List(Of String)) Handles WorkshopManager.WorkshopSearchCompleted
-        WorkshopListBox.Items.Clear()
-        For Each result As String In results
-            WorkshopListBox.Items.Add(result)
-        Next
-        MessageBox.Show("Workshop search completed.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Information)
-    End Sub
+    ' Private Sub WorkshopManager_WorkshopSearchCompleted(results As List(Of String)) Handles WorkshopManager.WorkshopSearchCompleted
+    '     WorkshopListBox.Items.Clear()
+    '     For Each result As String In results
+    '         WorkshopListBox.Items.Add(result)
+    '     Next
+    '     MessageBox.Show("Workshop search completed.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Information)
+    ' End Sub
 
-    Private Sub WorkshopManager_WorkshopInstallCompleted(modId As String) Handles WorkshopManager.WorkshopInstallCompleted
-        MessageBox.Show($"Mod {modId} installed successfully.", "Install", MessageBoxButtons.OK, MessageBoxIcon.Information)
-    End Sub
+    ' Private Sub WorkshopManager_WorkshopInstallCompleted(modId As String) Handles WorkshopManager.WorkshopInstallCompleted
+    '     MessageBox.Show($"Mod {modId} installed successfully.", "Install", MessageBoxButtons.OK, MessageBoxIcon.Information)
+    ' End Sub
 
-    Private Sub WorkshopManager_ErrorOccurred(message As String) Handles WorkshopManager.ErrorOccurred
-        MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-    End Sub
+    ' Private Sub WorkshopManager_ErrorOccurred(message As String) Handles WorkshopManager.ErrorOccurred
+    '     MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    ' End Sub
 
     Private Async Function GetPublicIPAsync() As Task
         If My.Computer.Network.IsAvailable Then
