@@ -50,6 +50,21 @@ edit files such as `MOTD` or `maplist` in only a few clicks.
 | :---: | :---: |
 | [![Button GitHub]][GitHub] | [![Button GameBanana]][GameBanana] |
 
+## Building from Source
+
+SteamCMD GUI is a .NET Framework 4.8 application that requires a **Windows** environment to build.
+
+### Quick Build (Windows)
+1. Run `build.bat` from the project root directory
+
+### Manual Build
+See [BUILD.md](BUILD.md) for detailed build instructions, requirements, and troubleshooting.
+
+### Requirements
+- Windows 10/11
+- Visual Studio 2019/2022 OR .NET Framework 4.8 Developer Pack
+- NuGet Package Manager
+
 </div>
 
 <!----------------------------------------------------------------------------->
