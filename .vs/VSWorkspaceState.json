@@ -2,8 +2,8 @@
   "ExpandedNodes": [
     "",
     "\\Source",
-    "\\Source\\SteamCMD GUI"
+    "\\Source\\SteamCMD GUI",
+    "\\Source\\SteamCMD GUI\\My Project"
   ],
-  "SelectedNode": "\\Source\\SteamCMD GUI\\MainMenu.Designer.vb",
   "PreviewInSolutionExplorer": false
 }
