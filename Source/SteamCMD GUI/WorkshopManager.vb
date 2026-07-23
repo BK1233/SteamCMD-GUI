@@ -32,11 +32,11 @@ Public Class WorkshopManager
             process.StartInfo.CreateNoWindow = True
 
             Dim output As String = ""
-            process.OutputDataReceived.AddHandler(Sub(sender, e)
-                                                      If e.Data IsNot Nothing Then
-                                                          output &= e.Data & vbCrLf
-                                                      End If
-                                                  End Sub)
+            AddHandler process.OutputDataReceived, Sub(sender, e)
+                                                       If e.Data IsNot Nothing Then
+                                                           output &= e.Data & vbCrLf
+                                                       End If
+                                                   End Sub
 
             process.Start()
             process.BeginOutputReadLine()

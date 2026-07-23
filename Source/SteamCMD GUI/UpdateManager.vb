@@ -39,11 +39,11 @@ Public Class UpdateManager
             End With
 
             Dim outputBuilder As New System.Text.StringBuilder()
-            process.OutputDataReceived.AddHandler(Sub(sender, e)
-                                                      If e.Data IsNot Nothing Then
-                                                          outputBuilder.AppendLine(e.Data)
-                                                      End If
-                                                  End Sub)
+            AddHandler process.OutputDataReceived, Sub(sender, e)
+                                                       If e.Data IsNot Nothing Then
+                                                           outputBuilder.AppendLine(e.Data)
+                                                       End If
+                                                   End Sub
 
             process.Start()
             process.BeginOutputReadLine()

@@ -964,44 +964,5 @@ Partial Class MainMenu
     Friend WithEvents AddProfileButton As System.Windows.Forms.Button
     Friend WithEvents ProfileComboBox As System.Windows.Forms.ComboBox
     Friend WithEvents GroupBox7 As System.Windows.Forms.GroupBox
-    Friend WithEvents SearchTextBox As System.Windows.Forms.TextBox
-    Friend WithEvents SearchButton As System.Windows.Forms.Button
-    Friend WithEvents AutoScrollCheckBox As System.Windows.Forms.CheckBox
-    Friend WithEvents RconTab As System.Windows.Forms.TabPage
-    Friend WithEvents RconConnectionGroupBox As System.Windows.Forms.GroupBox
-    Friend WithEvents RconIpLabel As System.Windows.Forms.Label
-    Friend WithEvents RconIpTextBox As System.Windows.Forms.TextBox
-    Friend WithEvents RconPortLabel As System.Windows.Forms.Label
-    Friend WithEvents RconPortNumericUpDown As System.Windows.Forms.NumericUpDown
-    Friend WithEvents RconPasswordLabel As System.Windows.Forms.Label
-    Friend WithEvents RconPasswordTextBox As System.Windows.Forms.MaskedTextBox
-    Friend WithEvents RconConnectButton As System.Windows.Forms.Button
-    Friend WithEvents RconDisconnectButton As System.Windows.Forms.Button
-    Friend WithEvents RconConsoleGroupBox As System.Windows.Forms.GroupBox
-    Friend WithEvents RconSendCommand As System.Windows.Forms.Button
-    Friend WithEvents RconCommandTextBox As System.Windows.Forms.TextBox
-    Friend WithEvents RconOutputTextBox As System.Windows.Forms.RichTextBox
     Friend WithEvents LanguageComboBox As System.Windows.Forms.ComboBox
-    Friend WithEvents ConfigEditorTab As System.Windows.Forms.TabPage
-    Friend WithEvents ConfigTreeView As System.Windows.Forms.TreeView
-    Friend WithEvents ConfigEditorTextBox As System.Windows.Forms.RichTextBox
-    Friend WithEvents ConfigOpenButton As System.Windows.Forms.Button
-    Friend WithEvents ConfigRefreshButton As System.Windows.Forms.Button
-    Friend WithEvents ConfigSaveButton As System.Windows.Forms.Button
-    Friend WithEvents BackupRestoreTab As System.Windows.Forms.TabPage
-    Friend WithEvents CreateBackupGroupBox As System.Windows.Forms.GroupBox
-    Friend WithEvents SelectSourceButton As System.Windows.Forms.Button
-    Friend WithEvents SelectDestinationButton As System.Windows.Forms.Button
-    Friend WithEvents CreateBackupButton As System.Windows.Forms.Button
-    Friend WithEvents RestoreBackupGroupBox As System.Windows.Forms.GroupBox
-    Friend WithEvents BackupListBox As System.Windows.Forms.ListBox
-    Friend WithEvents RestoreBackupButton As System.Windows.Forms.Button
-    Friend WithEvents DeleteBackupButton As System.Windows.Forms.Button
-    Friend WithEvents BackupScheduleGroupBox As System.Windows.Forms.GroupBox
-    Friend WithEvents EnableScheduleCheckBox As System.Windows.Forms.CheckBox
-    Friend WithEvents UpdatesTab As System.Windows.Forms.TabPage
-    Friend WithEvents UpdatesLabel As System.Windows.Forms.Label
-    Friend WithEvents CheckForUpdatesButton As System.Windows.Forms.Button
-    Friend WithEvents InstallUpdateButton As System.Windows.Forms.Button
-    Friend WithEvents UpdatesListBox As System.Windows.Forms.ListBox
 End Class
