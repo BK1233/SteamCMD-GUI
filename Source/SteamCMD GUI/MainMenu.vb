@@ -7,8 +7,6 @@ Imports System.Text
 Imports System.Xml.Linq
 Imports CoreRCON
 Imports System.Resources
-Imports System.Globalization
-Imports System.IO
 Imports System.IO.Compression
 
 Public Class MainMenu
@@ -18,48 +16,6 @@ Public Class MainMenu
     Private WithEvents SteamCMD_Find As New Process()
     Private ReadOnly SteamCMD_Games As New XmlDocument()
     Private ReadOnly SteamCMD_Path As String = My.Application.Info.DirectoryPath & "\steamcmd.exe"
-    Private WithEvents SteamCMD_Status As New Timer()
-    Private WithEvents SteamCMD_Update As New Timer()
-    Private WithEvents SteamCMD_Output As New Timer()
-    Private WithEvents SteamCMD_Install As New Timer()
-    Private WithEvents SteamCMD_Backup As New Timer()
-    Private WithEvents SteamCMD_Restore As New Timer()
-    Private WithEvents SteamCMD_Validate As New Timer()
-    Private WithEvents SteamCMD_Workshop As New Timer()
-    Private WithEvents SteamCMD_Anonymous As New Timer()
-    Private WithEvents SteamCMD_Login As New Timer()
-    Private WithEvents SteamCMD_Password As New Timer()
-    Private WithEvents SteamCMD_Guard As New Timer()
-    Private WithEvents SteamCMD_AppUpdate As New Timer()
-    Private WithEvents SteamCMD_AppSet As New Timer()
-    Private WithEvents SteamCMD_Quit As New Timer()
-    Private WithEvents SteamCMD_Force As New Timer()
-    Private WithEvents SteamCMD_ForceInstall As New Timer()
-    Private WithEvents SteamCMD_ForceInstallDir As New Timer()
-    Private WithEvents SteamCMD_ForceInstallMod As New Timer()
-    Private WithEvents SteamCMD_ForceInstallModDir As New Timer()
-    Private WithEvents SteamCMD_ForceInstallModValidate As New Timer()
-    Private WithEvents SteamCMD_ForceInstallModWorkshop As New Timer()
-    Private WithEvents SteamCMD_ForceInstallModWorkshopDir As New Timer()
-    Private WithEvents SteamCMD_ForceInstallModWorkshopValidate As New Timer()
-    Private WithEvents SteamCMD_ForceInstallWorkshop As New Timer()
-    Private WithEvents SteamCMD_ForceInstallWorkshopDir As New Timer()
-    Private WithEvents SteamCMD_ForceInstallWorkshopValidate As New Timer()
-    Private WithEvents SteamCMD_ForceValidate As New Timer()
-    Private WithEvents SteamCMD_ForceWorkshop As New Timer()
-    Private WithEvents SteamCMD_ForceWorkshopDir As New Timer()
-    Private WithEvents SteamCMD_ForceWorkshopValidate As New Timer()
-    Private WithEvents SteamCMD_Mod As New Timer()
-    Private WithEvents SteamCMD_ModDir As New Timer()
-    Private WithEvents SteamCMD_ModValidate As New Timer()
-    Private WithEvents SteamCMD_ModWorkshop As New Timer()
-    Private WithEvents SteamCMD_ModWorkshopDir As New Timer()
-    Private WithEvents SteamCMD_ModWorkshopValidate As New Timer()
-    Private WithEvents SteamCMD_ValidateDir As New Timer()
-    Private WithEvents SteamCMD_ValidateWorkshop As New Timer()
-    Private WithEvents SteamCMD_ValidateWorkshopDir As New Timer()
-    Private WithEvents SteamCMD_ValidateWorkshopValidate As New Timer()
-    Private WithEvents SteamCMD_WorkshopDirValidate As New Timer()
 
     Private WithEvents RconClient As New RconClient()
 
@@ -71,6 +27,10 @@ Public Class MainMenu
     ' Strings
     Private CantFindSteamCMDString As String
     Private GameDictionary As New Dictionary(Of String, String)
+
+    ' Thread and Process objects
+    Private ThrSteamCMD As Thread
+    Private WithEvents p As Process
 
     Dim WithEvents WC As New WebClient
 
@@ -573,9 +533,6 @@ Public Class MainMenu
             End Try
         End If
     End Sub
-
-    Private ThrSteamCMD As Thread
-    Private WithEvents p As Process
 
     Private Sub ThreadTaskSteamCMD()
         Control.CheckForIllegalCrossThreadCalls = False
