@@ -67,7 +67,7 @@
     <Reference Include="System.Net.Sockets" />
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="CoreRCON, Version=5.4.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\CoreRCON.5.4.2\lib\netstandard2.0\CoreRCON.dll</HintPath>
+      <HintPath>..\packages\CoreRCON.5.4.2\lib\netstandard2.0\CoreRCON.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
