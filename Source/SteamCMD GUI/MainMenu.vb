@@ -1,5 +1,6 @@
 ﻿Imports System.Globalization
 Imports System.Threading
+Imports System.Threading.Tasks
 Imports System.IO
 Imports System.Net
 Imports System.Xml
@@ -7,12 +8,9 @@ Imports System.Text
 Imports System.Xml.Linq
 Imports CoreRCON
 Imports System.Resources
-Imports System.Globalization
-Imports System.IO
 Imports System.IO.Compression
 
 Public Class MainMenu
-    Private components As System.ComponentModel.IContainer
     Private WithEvents BackupManager As New BackupManager()
     Private WithEvents SteamCMD As New Process()
     Private WithEvents SteamCMD_Find As New Process()
@@ -302,7 +300,7 @@ Public Class MainMenu
         CantFindSteamCMDString = "Can't find the file 'steamcmd.exe'!"
     End Sub
 
-    Private Sub IPPrint() Handles ConsoleIPPrint.Click
+    Private Sub IPPrint()
         Dim sb As New Text.StringBuilder()
         sb.AppendLine("Local IP address(es):")
         For Each LocalIP As Net.IPAddress In IPs.AddressList
@@ -324,7 +322,7 @@ Public Class MainMenu
     End Sub
 
     ' Resize tabs
-    Private Sub Tab_Click() Handles UpdateTab.Enter, RunTab.Enter
+    Private Sub Tab_Click()
         If GroupBox1.Visible = False Then
             GroupBox1.Show()
             GroupBox3.Show()
@@ -612,7 +610,7 @@ Public Class MainMenu
         ConsoleInput.Text = ""
     End Sub
 
-    Private Delegate Sub AppendOutputTextDelegate(ByVal text As String, Optional color As Color = Nothing)
+    Private Delegate Sub AppendOutputTextDelegate(ByVal text As String, color As Color)
     Private Sub AppendOutputText(ByVal text As String, Optional color As Color = Nothing)
         If ConsoleOutput.InvokeRequired Then
             Dim myDelegate As New AppendOutputTextDelegate(AddressOf AppendOutputText)
@@ -722,7 +720,7 @@ Public Class MainMenu
 
     Private SourcePath As String
     Private DestinationPath As String
-    Private WithEvents BackupTimer As New Timer() With {.Interval = 24 * 60 * 60 * 1000} ' 24 hours
+    Private WithEvents BackupTimer As New System.Windows.Forms.Timer() With {.Interval = 24 * 60 * 60 * 1000} ' 24 hours
 
     Private WithEvents ServerManager As New ServerManager()
     Private WithEvents UpdateManager As New UpdateManager(My.Application.Info.DirectoryPath & "\steamcmd.exe")

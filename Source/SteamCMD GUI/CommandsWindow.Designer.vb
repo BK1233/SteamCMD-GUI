@@ -75,5 +75,5 @@ Partial Class CommandLineOptionsWindow
     Friend WithEvents CommandsTextbox As System.Windows.Forms.TextBox
     Friend WithEvents CommandHelpButton As System.Windows.Forms.Button
     Friend WithEvents OKButton As System.Windows.Forms.Button
-    Friend WithEvents CancelButton As System.Windows.Forms.Button
+    Friend WithEvents Shadows CancelButton As System.Windows.Forms.Button
 End Class
