@@ -127,6 +127,7 @@
     <Compile Include="BackupManager.vb" />
     <Compile Include="ServerManager.vb" />
     <Compile Include="UpdateManager.vb" />
+    <Compile Include="WorkshopManager.vb" />
     <Compile Include="Resources\Strings.en.Designer.vb">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
