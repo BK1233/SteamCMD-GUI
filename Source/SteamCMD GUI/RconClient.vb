@@ -8,7 +8,9 @@ Public Class RconClient
 
     Public Sub Connect(host As String, port As Integer, password As String)
         Try
-            client = New RCON(host, port, password)
+            client = New RCON(System.Net.IPAddress.Parse(host), CUShort(port), password)
+            client.ConnectAsync().Wait()
+            AddHandler client.OnDisconnected, Sub() RaiseEvent ConnectionStatusChanged(False)
             RaiseEvent ConnectionStatusChanged(True)
         Catch ex As Exception
             RaiseEvent OutputReceived("RCON connection failed: " & ex.Message)
