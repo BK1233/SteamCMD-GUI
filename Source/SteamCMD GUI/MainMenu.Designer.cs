@@ -328,7 +328,16 @@ namespace SteamCMD_GUI
 
             this.cmbGameToRun.Location = new System.Drawing.Point(6, 20);
             this.cmbGameToRun.Size = new System.Drawing.Size(200, 21);
-            this.cmbGameToRun.Text = "cstrike";
+            this.cmbGameToRun.Text = "Counter-Strike: Source";
+            this.cmbGameToRun.Items.Add("Counter-Strike: Source");
+            this.cmbGameToRun.Items.Add("Team Fortress 2");
+            this.cmbGameToRun.Items.Add("Garry's Mod");
+            this.cmbGameToRun.Items.Add("Half-Life 2: Deathmatch");
+            this.cmbGameToRun.Items.Add("Left 4 Dead");
+            this.cmbGameToRun.Items.Add("Left 4 Dead 2");
+            this.cmbGameToRun.Items.Add("Day of Defeat: Source");
+            this.cmbGameToRun.Items.Add("Alien Swarm");
+            this.cmbGameToRun.Items.Add("Counter-Strike: Global Offensive");
 
             this.txtCustomMod.Location = new System.Drawing.Point(216, 20);
             this.txtCustomMod.Size = new System.Drawing.Size(80, 20);
