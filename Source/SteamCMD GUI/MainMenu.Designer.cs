@@ -227,6 +227,7 @@ namespace SteamCMD_GUI
             this.cmbGameToInstall.Items.Add("Garry's Mod");
             this.cmbGameToInstall.Items.Add("Half-Life Deathmatch: Source");
             this.cmbGameToInstall.Items.Add("Left 4 Dead 2");
+            this.cmbGameToInstall.Items.Add("Team Fortress 2 Classic");
 
             this.btnAddCustom.Text = "Add Custom";
             this.btnAddCustom.Location = new System.Drawing.Point(296, 20);
@@ -367,6 +368,7 @@ namespace SteamCMD_GUI
             this.cmbGameToRun.Items.Add("Day of Defeat: Source");
             this.cmbGameToRun.Items.Add("Alien Swarm");
             this.cmbGameToRun.Items.Add("Counter-Strike: Global Offensive");
+            this.cmbGameToRun.Items.Add("Team Fortress 2 Classic");
 
             this.txtCustomMod.Location = new System.Drawing.Point(216, 48);
             this.txtCustomMod.Size = new System.Drawing.Size(80, 20);

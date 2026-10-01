@@ -205,6 +205,7 @@ namespace SteamCMD_GUI
             else if (gameName == "Garry's Mod") appId = "4020";
             else if (gameName == "Half-Life Deathmatch: Source") appId = "255470";
             else if (gameName == "Left 4 Dead 2") appId = "222860";
+            else if (gameName == "Team Fortress 2 Classic") appId = "244310"; // Source SDK Base 2013 Dedicated Server
             else appId = gameName; // In case it's a custom numeric appID
 
             _updateManager.SetSteamCmdPath(txtSteamCmdPath.Text);
@@ -220,7 +221,7 @@ namespace SteamCMD_GUI
 
             string args = $"{loginArg} +force_install_dir \"{txtInstallDir.Text}\" +app_update {appId}{validateArg} +quit";
 
-            _updateManager.UpdateServerWithArgs(args, appId);
+            _updateManager.UpdateServerWithArgs(args, txtInstallDir.Text, appId);
         }
 
         private void btnStartServer_Click(object sender, EventArgs e)
@@ -237,6 +238,7 @@ namespace SteamCMD_GUI
             else if (selectedGame == "Day of Defeat: Source") gameMod = "dod";
             else if (selectedGame == "Alien Swarm") gameMod = "swarm";
             else if (selectedGame == "Counter-Strike: Global Offensive") gameMod = "csgo";
+            else if (selectedGame == "Team Fortress 2 Classic") gameMod = "tf2classic";
             else gameMod = selectedGame; // Custom user input
 
 
