@@ -254,7 +254,21 @@ namespace SteamCMD_GUI
         private void btnStartServer_Click(object sender, EventArgs e)
         {
             string exe = Path.Combine(txtSrcdsPath.Text, "srcds.exe");
-            string args = $"-console -game {cmbGameToRun.Text} +maxplayers {numMaxPlayers.Value} +map {cmbMap.Text} -port {numUdpPort.Value} +rcon_password \"{txtRcon.Text}\"";
+
+            string selectedGame = cmbGameToRun.Text;
+            string gameMod = "cstrike";
+            if (selectedGame == "Team Fortress 2") gameMod = "tf";
+            else if (selectedGame == "Garry's Mod") gameMod = "garrysmod";
+            else if (selectedGame == "Half-Life 2: Deathmatch") gameMod = "hl2mp";
+            else if (selectedGame == "Left 4 Dead") gameMod = "left4dead";
+            else if (selectedGame == "Left 4 Dead 2") gameMod = "left4dead2";
+            else if (selectedGame == "Day of Defeat: Source") gameMod = "dod";
+            else if (selectedGame == "Alien Swarm") gameMod = "swarm";
+            else if (selectedGame == "Counter-Strike: Global Offensive") gameMod = "csgo";
+            else gameMod = selectedGame; // Custom user input
+
+            string args = $"-console -game {gameMod} +maxplayers {numMaxPlayers.Value} +map {cmbMap.Text} -port {numUdpPort.Value} +rcon_password \"{txtRcon.Text}\"";
+
 
             if (chkInsecure.Checked) args += " -insecure";
             if (chkDisableBots.Checked) args += " -nobots";
