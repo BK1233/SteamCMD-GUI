@@ -23,6 +23,7 @@ namespace SteamCMD_GUI
             ServerProcess.StartInfo.UseShellExecute = false;
             ServerProcess.StartInfo.RedirectStandardOutput = true;
             ServerProcess.StartInfo.RedirectStandardError = true;
+            ServerProcess.StartInfo.RedirectStandardInput = true;
             ServerProcess.StartInfo.CreateNoWindow = true;
 
             ServerProcess.EnableRaisingEvents = true;

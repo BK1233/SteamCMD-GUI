@@ -14,6 +14,45 @@ namespace SteamCMD_GUI
 {
     public partial class MainMenu : Form
     {
+        private void txtSteamCmdPath_TextChanged(object sender, EventArgs e)
+        {
+            _updateManager.SetSteamCmdPath(txtSteamCmdPath.Text);
+        }
+
+        private void btnOpenFolder_Click(object sender, EventArgs e)
+        {
+            if (Directory.Exists(txtSrcdsPath.Text))
+            {
+                Process.Start("explorer.exe", txtSrcdsPath.Text);
+            }
+        }
+
+        private void btnHelp1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Select the game you wish to install. If your game is not listed, use the Custom Mod option.", "Help");
+        }
+
+        private void btnHelp2_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Select the game to run. Ensure the path to the srcds.exe is correct.", "Help");
+        }
+
+        private void chkCustomMod_CheckedChanged(object sender, EventArgs e)
+        {
+            txtCustomMod.Enabled = chkCustomMod.Checked;
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void clearLogsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ConsoleOutput.Clear();
+            UpdateStatus("Console logs cleared.");
+        }
+
 
         private void btnConsoleSend_Click(object sender, EventArgs e)
         {
@@ -161,7 +200,14 @@ namespace SteamCMD_GUI
             else if (selectedGame == "Counter-Strike: Global Offensive") gameMod = "csgo";
             else gameMod = selectedGame; // Custom user input
 
+
+            if (chkCustomMod.Checked && !string.IsNullOrWhiteSpace(txtCustomMod.Text))
+            {
+                gameMod = txtCustomMod.Text;
+            }
+
             string args = $"-console -game {gameMod} +maxplayers {numMaxPlayers.Value} +map {cmbMap.Text} -port {numUdpPort.Value} +rcon_password \"{txtRcon.Text}\"";
+
 
 
             if (chkInsecure.Checked) args += " -insecure";
