@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
-using System.Text;
 using System.Net;
 using System.Net.Http;
 using CoreRCON;
@@ -11,53 +10,49 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-
 namespace SteamCMD_GUI
 {
-    public class Profile
+    public class ServerProfile
     {
         public string Name { get; set; }
-        public string AppId { get; set; }
-        public string InstallDir { get; set; }
-        public string ModId { get; set; }
-        public string RconIp { get; set; }
-        public string RconPort { get; set; }
+        public string Game { get; set; }
+        public string Map { get; set; }
+        public string Network { get; set; }
+        public int MaxPlayers { get; set; }
+        public int UdpPort { get; set; }
         public string RconPassword { get; set; }
-        public bool AutoValidate { get; set; }
-        public string BackupSource { get; set; }
-        public string BackupDest { get; set; }
+        public bool Secure { get; set; }
+        public bool DebugMode { get; set; }
+        public bool SourceTV { get; set; }
+        public bool ConsoleMode { get; set; }
+        public bool Insecure { get; set; }
+        public bool DisableBots { get; set; }
+        public bool DevMessages { get; set; }
+        public string CustomMod { get; set; }
     }
 
-    public partial class SteamCMDMainMenu : Form
+    public partial class MainMenu : Form
     {
-        private string steamCmdPath = "steamcmd.exe";
-        private RCON rconClient;
-        private BackupManager _backupManager = new BackupManager();
+
+        private void btnConsoleSend_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(txtConsoleInput.Text))
+            {
+                _serverManager.SendCommand(txtConsoleInput.Text);
+                txtConsoleInput.Clear();
+            }
+        }
         private ServerManager _serverManager = new ServerManager();
-        private WorkshopManager _workshopManager = new WorkshopManager("steamcmd.exe");
         private UpdateManager _updateManager = new UpdateManager("steamcmd.exe");
-        private List<SteamCMD_GUI.Profile> _profiles = new List<SteamCMD_GUI.Profile>();
+        private BackupManager _backupManager = new BackupManager();
+        private RCON rconClient;
         private string _loadedConfigPath = "";
+        private List<ServerProfile> _profiles = new List<ServerProfile>();
+        private List<string> _customGames = new List<string>();
 
-
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            new AboutWindow().ShowDialog();
-        }
-
-        private void commandsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            new CommandsWindow().ShowDialog();
-        }
-
-        public SteamCMDMainMenu()
+        public MainMenu()
         {
             InitializeComponent();
-
-            // Wire up event handlers for managers
-            _backupManager.BackupCreated += msg => UpdateStatus($"Backup created: {msg}");
-            _backupManager.BackupRestored += msg => UpdateStatus($"Backup restored: {msg}");
-            _backupManager.ErrorOccurred += msg => UpdateStatus(msg, true);
 
             _serverManager.ServerOutputReceived += msg => AppendOutputText(msg);
             _serverManager.ServerExited += () => UpdateStatus("Server process exited");
@@ -66,28 +61,160 @@ namespace SteamCMD_GUI
             _updateManager.UpdateCompleted += appId => UpdateStatus($"Update completed for AppID {appId}");
             _updateManager.ErrorOccurred += msg => UpdateStatus(msg, true);
 
-            _workshopManager.WorkshopSearchCompleted += results =>
-            {
-                Invoke(new Action(() =>
-                {
-                    lstWorkshopResults.Items.Clear();
-                    foreach (var r in results) lstWorkshopResults.Items.Add(r);
-                }));
-            };
-            _workshopManager.WorkshopInstallCompleted += modId => UpdateStatus($"Workshop Mod {modId} Installed");
-            _workshopManager.ErrorOccurred += msg => UpdateStatus(msg, true);
+            _backupManager.BackupCreated += msg => UpdateStatus($"Backup created: {msg}");
+            _backupManager.BackupRestored += msg => UpdateStatus($"Backup restored: {msg}");
+            _backupManager.ErrorOccurred += msg => UpdateStatus(msg, true);
 
             LoadProfiles();
+            LoadCustomGames();
+
+            btnSourceMod.Click += (s, e) => Process.Start(new ProcessStartInfo("http://www.sourcemod.net") { UseShellExecute = true });
+            btnMetamod.Click += (s, e) => Process.Start(new ProcessStartInfo("http://www.metamodsource.net") { UseShellExecute = true });
+            btnEventScripts.Click += (s, e) => Process.Start(new ProcessStartInfo("http://www.eventscripts.com") { UseShellExecute = true });
+            btnValveWiki.Click += (s, e) => Process.Start(new ProcessStartInfo("https://developer.valvesoftware.com/wiki/Main_Page") { UseShellExecute = true });
+            btnCheckUpdates.Click += (s, e) => {
+                UpdateStatus("Checking for updates...");
+                _updateManager.CheckForUpdates();
+            };
+
+            btnAddProfile.Click += BtnAddProfile_Click;
+            btnSaveProfile.Click += BtnSaveProfile_Click;
+
+            btnAddCustom.Click += (s, e) => {
+                string input = Microsoft.VisualBasic.Interaction.InputBox("Enter Custom App ID:", "Add Custom Game", "");
+                if (!string.IsNullOrWhiteSpace(input) && !cmbGameToInstall.Items.Contains(input)) {
+                    cmbGameToInstall.Items.Add(input);
+                    cmbGameToInstall.Text = input;
+                    _customGames.Add(input);
+                    SaveCustomGames();
+                }
+            };
         }
 
-        // Run Tab
+        private void cmbProfiles_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var p = _profiles.Find(x => x.Name == cmbProfiles.Text);
+            if (p != null)
+            {
+                cmbGameToRun.Text = p.Game;
+                cmbMap.Text = p.Map;
+                cmbNetwork.Text = p.Network;
+                numMaxPlayers.Value = p.MaxPlayers;
+                numUdpPort.Value = p.UdpPort;
+                txtRcon.Text = p.RconPassword;
+                chkSecure.Checked = p.Secure;
+                chkDebugMode.Checked = p.DebugMode;
+                chkSourceTV.Checked = p.SourceTV;
+                chkConsoleMode.Checked = p.ConsoleMode;
+                chkInsecure.Checked = p.Insecure;
+                chkDisableBots.Checked = p.DisableBots;
+                chkDevMessages.Checked = p.DevMessages;
+                txtCustomMod.Text = p.CustomMod;
+                UpdateStatus($"Profile {p.Name} loaded.");
+            }
+        }
+
+        private void LoadCustomGames()
+        {
+            if (File.Exists("custom_games.xml"))
+            {
+                try {
+                    using (var sr = new StreamReader("custom_games.xml"))
+                    {
+                        var xs = new XmlSerializer(typeof(List<string>));
+                        _customGames = (List<string>)xs.Deserialize(sr);
+                        foreach(var g in _customGames) {
+                            if (!cmbGameToInstall.Items.Contains(g)) cmbGameToInstall.Items.Add(g);
+                        }
+                    }
+                } catch { }
+            }
+        }
+
+        private void SaveCustomGames()
+        {
+            try {
+                using (var sw = new StreamWriter("custom_games.xml"))
+                {
+                    var xs = new XmlSerializer(typeof(List<string>));
+                    xs.Serialize(sw, _customGames);
+                }
+            } catch { }
+        }
+
+        private void BtnAddProfile_Click(object sender, EventArgs e)
+        {
+            cmbProfiles.Text = "New Server Profile";
+            cmbGameToRun.Text = "";
+            cmbMap.Text = "";
+            UpdateStatus("Ready to create a new profile. Fill in fields and click Save.");
+        }
+
+        private void BtnSaveProfile_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(cmbProfiles.Text)) return;
+            var p = new ServerProfile
+            {
+                Name = cmbProfiles.Text,
+                Game = cmbGameToRun.Text,
+                Map = cmbMap.Text,
+                Network = cmbNetwork.Text,
+                MaxPlayers = (int)numMaxPlayers.Value,
+                UdpPort = (int)numUdpPort.Value,
+                RconPassword = txtRcon.Text,
+                Secure = chkSecure.Checked,
+                DebugMode = chkDebugMode.Checked,
+                SourceTV = chkSourceTV.Checked,
+                ConsoleMode = chkConsoleMode.Checked,
+                Insecure = chkInsecure.Checked,
+                DisableBots = chkDisableBots.Checked,
+                DevMessages = chkDevMessages.Checked,
+                CustomMod = txtCustomMod.Text
+            };
+
+            _profiles.RemoveAll(x => x.Name == p.Name);
+            _profiles.Add(p);
+            SaveProfiles();
+
+            if (!cmbProfiles.Items.Contains(p.Name)) cmbProfiles.Items.Add(p.Name);
+            UpdateStatus($"Profile {p.Name} saved.");
+        }
+
+        private void SaveProfiles()
+        {
+            try {
+                using (var sw = new StreamWriter("profiles.xml"))
+                {
+                    var xs = new XmlSerializer(typeof(List<ServerProfile>));
+                    xs.Serialize(sw, _profiles);
+                }
+            } catch { }
+        }
+
+        private void LoadProfiles()
+        {
+            if (File.Exists("profiles.xml"))
+            {
+                try {
+                    using (var sr = new StreamReader("profiles.xml"))
+                    {
+                        var xs = new XmlSerializer(typeof(List<ServerProfile>));
+                        _profiles = (List<ServerProfile>)xs.Deserialize(sr);
+                        cmbProfiles.Items.Clear();
+                        foreach(var p in _profiles) cmbProfiles.Items.Add(p.Name);
+                    }
+                } catch { }
+            }
+        }
+
         private async void btnDownloadSteamCMD_Click(object sender, EventArgs e)
         {
             try {
+                UpdateStatus("Starting SteamCMD download...");
                 using (HttpClient client = new HttpClient())
                 {
                     var response = await client.GetAsync("https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip");
-                    using (var fs = new FileStream("steamcmd.zip", FileMode.CreateNew))
+                    using (var fs = new FileStream("steamcmd.zip", FileMode.Create))
                     {
                         await response.Content.CopyToAsync(fs);
                     }
@@ -98,20 +225,55 @@ namespace SteamCMD_GUI
             }
         }
 
-        // Update Tab
         private void btnUpdateServer_Click(object sender, EventArgs e)
         {
-            UpdateStatus($"Updating server (AppId: {txtAppId.Text}) to {txtInstallDir.Text}...");
-            _updateManager.UpdateServer(txtAppId.Text, txtInstallDir.Text);
+
+
+            string gameName = cmbGameToInstall.Text;
+            string appId = "740"; // default
+            if (gameName == "Counter-Strike: Global Offensive") appId = "740";
+            else if (gameName == "Team Fortress 2") appId = "232250";
+            else if (gameName == "Garry's Mod") appId = "4020";
+            else if (gameName == "Half-Life Deathmatch: Source") appId = "255470";
+            else if (gameName == "Left 4 Dead 2") appId = "222860";
+            else appId = gameName; // In case it's a custom numeric appID
+
+            _updateManager.SetSteamCmdPath(txtSteamCmdPath.Text);
+            UpdateStatus($"Updating server (AppId: {appId}) to {txtInstallDir.Text}...");
+
+
+
+            string loginArg = chkLoginAnonymous.Checked ? "+login anonymous" : $"+login {txtLogin.Text} {txtPassword.Text}";
+            string validateArg = chkValidate.Checked ? " validate" : "";
+
+            string args = $"{loginArg} +force_install_dir \"{txtInstallDir.Text}\" +app_update {appId}{validateArg} +quit";
+
+            _updateManager.UpdateServerWithArgs(args, appId);
         }
 
-        private void btnInstallMod_Click(object sender, EventArgs e)
+        private void btnStartServer_Click(object sender, EventArgs e)
         {
-            UpdateStatus($"Installing mod {txtModId.Text}...");
-            _workshopManager.Install(txtAppId.Text, txtModId.Text);
+            string exe = Path.Combine(txtSrcdsPath.Text, "srcds.exe");
+            string args = $"-console -game {cmbGameToRun.Text} +maxplayers {numMaxPlayers.Value} +map {cmbMap.Text} -port {numUdpPort.Value} +rcon_password \"{txtRcon.Text}\"";
+
+            if (chkInsecure.Checked) args += " -insecure";
+            if (chkDisableBots.Checked) args += " -nobots";
+            if (chkDebugMode.Checked) args += " -debug";
+            if (chkConsoleMode.Checked) args += " -console";
+            if (chkSourceTV.Checked) args += " +tv_enable 1";
+            if (chkDevMessages.Checked) args += " -dev";
+
+            if (File.Exists("commands.txt")) args += " " + File.ReadAllText("commands.txt").Trim();
+
+            if (File.Exists(exe))
+            {
+                _serverManager.StartServer(exe, args);
+                UpdateStatus($"Starting server with args: {args}");
+            } else {
+                UpdateStatus($"Error: Server executable not found at: {exe}", true);
+            }
         }
 
-        // RCON Tab
         private async void btnRconConnect_Click(object sender, EventArgs e)
         {
             try
@@ -141,7 +303,6 @@ namespace SteamCMD_GUI
             }
         }
 
-        // Backup / Restore Tab
         private async void btnCreateBackup_Click(object sender, EventArgs e)
         {
             UpdateStatus("Creating backup...");
@@ -161,7 +322,6 @@ namespace SteamCMD_GUI
             }
         }
 
-        // Config Editor Tab
         private void btnOpenConfig_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
@@ -194,127 +354,50 @@ namespace SteamCMD_GUI
             }
         }
 
-        // Workshop Manager Tab
-        private void btnSearchWorkshop_Click(object sender, EventArgs e)
+        private void btnBrowseSteamCmd_Click(object sender, EventArgs e)
         {
-            lstWorkshopResults.Items.Clear();
-            _workshopManager.Search(txtAppId.Text, txtWorkshopSearch.Text);
-            UpdateStatus("Searching workshop...");
-        }
-
-        // Server Manager Tab
-        private void btnStartServer_Click(object sender, EventArgs e)
-        {
-            string exe = Path.Combine(txtInstallDir.Text, "srcds.exe");
-            if (File.Exists(exe))
+            using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                _serverManager.StartServer(exe, "-console -game cstrike");
-                UpdateStatus("Starting server...");
-            } else {
-                UpdateStatus("Server executable not found at: " + exe, true);
-            }
-        }
-
-        private void btnStopServer_Click(object sender, EventArgs e)
-        {
-            _serverManager.StopServer();
-            UpdateStatus("Stopped server.");
-        }
-
-        // Profiles Tab
-        private void btnSaveProfile_Click(object sender, EventArgs e)
-        {
-            var p = new SteamCMD_GUI.Profile {
-                Name = cmbProfiles.Text,
-                AppId = txtAppId.Text,
-                InstallDir = txtInstallDir.Text,
-                ModId = txtModId.Text,
-                RconIp = txtRconIp.Text,
-                RconPort = txtRconPort.Text,
-                RconPassword = txtRconPassword.Text,
-                AutoValidate = chkAutoValidate.Checked,
-                BackupSource = txtBackupSource.Text,
-                BackupDest = txtBackupDest.Text
-            };
-            var existing = _profiles.Find(x => x.Name == p.Name);
-            if (existing != null) {
-                existing.AppId = p.AppId;
-                existing.InstallDir = p.InstallDir;
-                existing.ModId = p.ModId;
-                existing.RconIp = p.RconIp;
-                existing.RconPort = p.RconPort;
-                existing.RconPassword = p.RconPassword;
-                existing.AutoValidate = p.AutoValidate;
-                existing.BackupSource = p.BackupSource;
-                existing.BackupDest = p.BackupDest;
-            } else {
-                _profiles.Add(p);
-                cmbProfiles.Items.Add(p.Name);
-            }
-            SaveProfiles();
-            UpdateStatus("Profile saved.");
-        }
-
-        private void btnLoadProfile_Click(object sender, EventArgs e)
-        {
-            var p = _profiles.Find(x => x.Name == cmbProfiles.Text);
-            if (p != null)
-            {
-                txtAppId.Text = p.AppId;
-                txtInstallDir.Text = p.InstallDir;
-                txtModId.Text = p.ModId;
-                txtRconIp.Text = p.RconIp;
-                txtRconPort.Text = p.RconPort;
-                txtRconPassword.Text = p.RconPassword;
-                chkAutoValidate.Checked = p.AutoValidate;
-                txtBackupSource.Text = p.BackupSource;
-                txtBackupDest.Text = p.BackupDest;
-                UpdateStatus("Profile loaded.");
-            } else {
-                UpdateStatus("Profile not found.", true);
-            }
-        }
-
-        private void SaveProfiles()
-        {
-            try {
-                using (var sw = new StreamWriter("profiles.xml"))
+                ofd.Filter = "Executable files (*.exe)|*.exe";
+                if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    var xs = new XmlSerializer(typeof(List<SteamCMD_GUI.Profile>));
-                    xs.Serialize(sw, _profiles);
+                    txtSteamCmdPath.Text = ofd.FileName;
                 }
-            } catch { }
-        }
-
-        private void LoadProfiles()
-        {
-            if (File.Exists("profiles.xml"))
-            {
-                try {
-                    using (var sr = new StreamReader("profiles.xml"))
-                    {
-                        var xs = new XmlSerializer(typeof(List<SteamCMD_GUI.Profile>));
-                        _profiles = (List<SteamCMD_GUI.Profile>)xs.Deserialize(sr);
-                        foreach (var p in _profiles) cmbProfiles.Items.Add(p.Name);
-                    }
-                } catch { }
             }
         }
 
-        // Console Tab
-        private void btnLogSearch_Click(object sender, EventArgs e)
+        private void btnBrowseServerPath_Click(object sender, EventArgs e)
         {
-            int index = ConsoleOutput.Text.IndexOf(txtLogSearch.Text, StringComparison.OrdinalIgnoreCase);
-            if (index != -1)
+            using (FolderBrowserDialog fbd = new FolderBrowserDialog())
             {
-                ConsoleOutput.Select(index, txtLogSearch.Text.Length);
-                ConsoleOutput.Focus();
-            } else {
-                UpdateStatus("Search text not found.", true);
+                if (fbd.ShowDialog() == DialogResult.OK)
+                {
+                    txtInstallDir.Text = fbd.SelectedPath;
+                }
             }
         }
 
-        // UI Utils
+        private void btnBrowseSrcds_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog fbd = new FolderBrowserDialog())
+            {
+                if (fbd.ShowDialog() == DialogResult.OK)
+                {
+                    txtSrcdsPath.Text = fbd.SelectedPath;
+                }
+            }
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new AboutWindow().ShowDialog();
+        }
+
+        private void commandsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new CommandsWindow().ShowDialog();
+        }
+
         public void UpdateStatus(string text, bool isError = false)
         {
             if (this.InvokeRequired)
