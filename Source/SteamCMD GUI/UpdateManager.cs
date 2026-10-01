@@ -1,74 +1,73 @@
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace SteamCMD_GUI
 {
     public class UpdateManager
     {
+        private string _steamCmdPath;
+
         public event Action<bool, string> UpdateCheckCompleted;
         public event Action<string> UpdateCompleted;
         public event Action<string> ErrorOccurred;
-        public event Action<string> StreamOutput;
-
-        private readonly string _steamCmdPath;
 
         public UpdateManager(string steamCmdPath)
         {
             _steamCmdPath = steamCmdPath;
         }
 
-        public async void CheckForUpdate(string appId, string installDir)
+        public void UpdateServer(string appId, string installDir)
         {
-            string arguments = $"+login anonymous +force_install_dir \"{installDir}\" +app_update {appId} validate +quit";
-            await RunSteamCmd(arguments, (string output) =>
+            UpdateServerWithArgs($"+login anonymous +force_install_dir \"{installDir}\" +app_update {appId} validate +quit", appId);
+        }
+
+
+        public void UpdateServerWithArgs(string args, string contextId = "Custom")
+        {
+            Task.Run(() =>
             {
-                bool updateAvailable = output.Contains("Success!");
-                UpdateCheckCompleted?.Invoke(updateAvailable, appId);
+                try
+                {
+                    ProcessStartInfo psi = new ProcessStartInfo
+                    {
+                        FileName = _steamCmdPath,
+                        Arguments = args,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    };
+
+                    Process process = new Process { StartInfo = psi };
+                    process.OutputDataReceived += (s, e) => {
+                        if (e.Data != null) ErrorOccurred?.Invoke($"Output: {e.Data}");
+                    };
+                    process.ErrorDataReceived += (s, e) => {
+                        if (e.Data != null) ErrorOccurred?.Invoke($"Error: {e.Data}");
+                    };
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    process.WaitForExit();
+                    UpdateCompleted?.Invoke(contextId);
+                }
+                catch (Exception ex)
+                {
+                    ErrorOccurred?.Invoke($"Failed to start SteamCMD: {ex.Message}");
+                }
             });
         }
 
-        public async void UpdateServer(string appId, string installDir)
+        public void SetSteamCmdPath(string path)
         {
-            string arguments = $"+login anonymous +force_install_dir \"{installDir}\" +app_update {appId} +quit";
-            await RunSteamCmd(arguments, (string output) => UpdateCompleted?.Invoke(appId));
+            _steamCmdPath = path;
         }
 
-        private async Task RunSteamCmd(string arguments, Action<string> outputHandler)
+        public void CheckForUpdates()
         {
-            try
-            {
-                using (Process process = new Process())
-                {
-                    process.StartInfo.FileName = _steamCmdPath;
-                    process.StartInfo.Arguments = arguments;
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.StartInfo.CreateNoWindow = true;
-
-                    StringBuilder outputBuilder = new StringBuilder();
-                    process.OutputDataReceived += (sender, e) =>
-                    {
-                        if (e.Data != null)
-                        {
-                            outputBuilder.AppendLine(e.Data);
-                            StreamOutput?.Invoke(e.Data);
-                        }
-                    };
-
-                    process.Start();
-                    process.BeginOutputReadLine();
-                    await process.WaitForExitAsync();
-
-                    outputHandler?.Invoke(outputBuilder.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorOccurred?.Invoke("SteamCMD execution failed: " + ex.Message);
-            }
+            Task.Delay(500).ContinueWith(_ => UpdateCheckCompleted?.Invoke(false, "GUI"));
         }
     }
 }

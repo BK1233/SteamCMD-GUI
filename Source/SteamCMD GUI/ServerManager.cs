@@ -36,6 +36,15 @@ namespace SteamCMD_GUI
             ServerProcess.BeginErrorReadLine();
         }
 
+
+        public void SendCommand(string cmd)
+        {
+            if (ServerProcess != null && !ServerProcess.HasExited)
+            {
+                ServerProcess.StandardInput.WriteLine(cmd);
+            }
+        }
+
         public void StopServer()
         {
             if (ServerProcess != null && !ServerProcess.HasExited)
