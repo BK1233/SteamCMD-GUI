@@ -69,8 +69,8 @@ namespace SteamCMD_GUI
             this.chkCustomMod = new System.Windows.Forms.CheckBox();
             this.btnHelp2 = new System.Windows.Forms.Button();
             this.lblServerName = new System.Windows.Forms.Label();
-            this.cmbProfiles = new System.Windows.Forms.ComboBox();
-            this.cmbProfiles.SelectedIndexChanged += new System.EventHandler(this.cmbProfiles_SelectedIndexChanged);
+
+
             this.txtServerName = new System.Windows.Forms.TextBox();
             this.lblMap = new System.Windows.Forms.Label();
             this.cmbMap = new System.Windows.Forms.ComboBox();
@@ -91,9 +91,7 @@ namespace SteamCMD_GUI
             this.chkDisableBots = new System.Windows.Forms.CheckBox();
             this.chkDevMessages = new System.Windows.Forms.CheckBox();
 
-            this.btnAddProfile = new System.Windows.Forms.Button();
             this.btnRunServer = new System.Windows.Forms.Button();
-            this.btnSaveProfile = new System.Windows.Forms.Button();
 
             // Tab 3: Console
             this.ConsoleTab = new System.Windows.Forms.TabPage();
@@ -323,10 +321,12 @@ namespace SteamCMD_GUI
 
             this.grpGameConfigRun.Text = "Game Configuration";
             this.grpGameConfigRun.Location = new System.Drawing.Point(6, 72);
-            this.grpGameConfigRun.Size = new System.Drawing.Size(460, 260);
+            this.grpGameConfigRun.Size = new System.Drawing.Size(460, 286);
             this.RunServerTab.Controls.Add(this.grpGameConfigRun);
 
-            this.cmbGameToRun.Location = new System.Drawing.Point(6, 20);
+            this.cmbGameToRun.Location = new System.Drawing.Point(6, 48);
+
+
             this.cmbGameToRun.Size = new System.Drawing.Size(200, 21);
             this.cmbGameToRun.Text = "Counter-Strike: Source";
             this.cmbGameToRun.Items.Add("Counter-Strike: Source");
@@ -339,91 +339,85 @@ namespace SteamCMD_GUI
             this.cmbGameToRun.Items.Add("Alien Swarm");
             this.cmbGameToRun.Items.Add("Counter-Strike: Global Offensive");
 
-            this.txtCustomMod.Location = new System.Drawing.Point(216, 20);
+            this.txtCustomMod.Location = new System.Drawing.Point(216, 48);
             this.txtCustomMod.Size = new System.Drawing.Size(80, 20);
             this.chkCustomMod.Text = "Custom Mod";
-            this.chkCustomMod.Location = new System.Drawing.Point(300, 22);
+            this.chkCustomMod.Location = new System.Drawing.Point(300, 50);
             this.btnHelp2.Text = "?";
-            this.btnHelp2.Location = new System.Drawing.Point(400, 20);
+            this.btnHelp2.Location = new System.Drawing.Point(400, 48);
             this.btnHelp2.Size = new System.Drawing.Size(25, 23);
 
             this.lblServerName.Text = "Server Name";
-            this.lblServerName.Location = new System.Drawing.Point(6, 50);
+            this.lblServerName.Location = new System.Drawing.Point(6, 76);
             this.lblServerName.AutoSize = true;
-            this.txtServerName.Location = new System.Drawing.Point(90, 48);
+            this.txtServerName.Location = new System.Drawing.Point(90, 74);
             this.txtServerName.Size = new System.Drawing.Size(300, 20);
             this.txtServerName.Text = "Source Dedicated Server";
 
             this.lblMap.Text = "Map";
-            this.lblMap.Location = new System.Drawing.Point(6, 76);
+            this.lblMap.Location = new System.Drawing.Point(6, 102);
             this.lblMap.AutoSize = true;
-            this.cmbMap.Location = new System.Drawing.Point(90, 74);
+            this.cmbMap.Location = new System.Drawing.Point(90, 100);
             this.cmbMap.Size = new System.Drawing.Size(300, 21);
             this.cmbMap.Text = "de_dust2";
 
             this.lblNetwork.Text = "Network";
-            this.lblNetwork.Location = new System.Drawing.Point(6, 102);
+            this.lblNetwork.Location = new System.Drawing.Point(6, 128);
             this.lblNetwork.AutoSize = true;
-            this.cmbNetwork.Location = new System.Drawing.Point(90, 100);
+            this.cmbNetwork.Location = new System.Drawing.Point(90, 126);
             this.cmbNetwork.Size = new System.Drawing.Size(120, 21);
             this.cmbNetwork.Text = "Internet";
 
             this.lblMaxPlayers.Text = "Max Players";
-            this.lblMaxPlayers.Location = new System.Drawing.Point(220, 102);
+            this.lblMaxPlayers.Location = new System.Drawing.Point(220, 128);
             this.lblMaxPlayers.AutoSize = true;
-            this.numMaxPlayers.Location = new System.Drawing.Point(300, 100);
+            this.numMaxPlayers.Location = new System.Drawing.Point(300, 126);
             this.numMaxPlayers.Size = new System.Drawing.Size(50, 20);
             this.numMaxPlayers.Value = 24;
 
             this.lblUdpPort.Text = "UDP Port";
-            this.lblUdpPort.Location = new System.Drawing.Point(6, 128);
+            this.lblUdpPort.Location = new System.Drawing.Point(6, 154);
             this.lblUdpPort.AutoSize = true;
-            this.numUdpPort.Location = new System.Drawing.Point(90, 126);
+            this.numUdpPort.Location = new System.Drawing.Point(90, 152);
             this.numUdpPort.Size = new System.Drawing.Size(80, 20);
             this.numUdpPort.Value = 27015;
             this.numUdpPort.Maximum = 65535;
 
             this.lblRcon.Text = "RCON";
-            this.lblRcon.Location = new System.Drawing.Point(220, 128);
+            this.lblRcon.Location = new System.Drawing.Point(220, 154);
             this.lblRcon.AutoSize = true;
-            this.txtRcon.Location = new System.Drawing.Point(270, 126);
+            this.txtRcon.Location = new System.Drawing.Point(270, 152);
             this.txtRcon.Size = new System.Drawing.Size(100, 20);
-            this.chkSecure.Location = new System.Drawing.Point(380, 128);
+            this.chkSecure.Location = new System.Drawing.Point(380, 154);
             this.chkSecure.Size = new System.Drawing.Size(20, 20);
             this.chkSecure.Checked = true;
 
             this.chkDebugMode.Text = "Debug Mode";
-            this.chkDebugMode.Location = new System.Drawing.Point(6, 160);
+            this.chkDebugMode.Location = new System.Drawing.Point(6, 186);
             this.chkSourceTV.Text = "SourceTV";
-            this.chkSourceTV.Location = new System.Drawing.Point(120, 160);
+            this.chkSourceTV.Location = new System.Drawing.Point(120, 186);
             this.chkConsoleMode.Text = "Console Mode";
-            this.chkConsoleMode.Location = new System.Drawing.Point(220, 160);
+            this.chkConsoleMode.Location = new System.Drawing.Point(220, 186);
             this.chkConsoleMode.Checked = true;
 
             this.chkInsecure.Text = "Insecure";
-            this.chkInsecure.Location = new System.Drawing.Point(6, 185);
+            this.chkInsecure.Location = new System.Drawing.Point(6, 211);
             this.chkDisableBots.Text = "Disable Bots";
-            this.chkDisableBots.Location = new System.Drawing.Point(120, 185);
+            this.chkDisableBots.Location = new System.Drawing.Point(120, 211);
             this.chkDevMessages.Text = "Dev Messages";
-            this.chkDevMessages.Location = new System.Drawing.Point(220, 185);
+            this.chkDevMessages.Location = new System.Drawing.Point(220, 211);
 
-            this.btnAddProfile.Text = "+";
-            this.btnAddProfile.Location = new System.Drawing.Point(320, 180);
-            this.btnAddProfile.Size = new System.Drawing.Size(25, 25);
-            this.btnRunServer.Text = "Run";
-            this.btnRunServer.Location = new System.Drawing.Point(350, 180);
-            this.btnRunServer.Size = new System.Drawing.Size(50, 25);
+            this.btnRunServer.Text = "Run Server";
+            this.btnRunServer.Location = new System.Drawing.Point(350, 206);
+            this.btnRunServer.Size = new System.Drawing.Size(80, 25);
             this.btnRunServer.Click += new System.EventHandler(this.btnStartServer_Click);
-            this.btnSaveProfile.Text = "S";
-            this.btnSaveProfile.Location = new System.Drawing.Point(405, 180);
-            this.btnSaveProfile.Size = new System.Drawing.Size(25, 25);
 
             this.grpGameConfigRun.Controls.Add(this.cmbGameToRun);
             this.grpGameConfigRun.Controls.Add(this.txtCustomMod);
             this.grpGameConfigRun.Controls.Add(this.chkCustomMod);
             this.grpGameConfigRun.Controls.Add(this.btnHelp2);
             this.grpGameConfigRun.Controls.Add(this.lblServerName);
-            this.grpGameConfigRun.Controls.Add(this.cmbProfiles);
+
             this.grpGameConfigRun.Controls.Add(this.txtServerName);
             this.grpGameConfigRun.Controls.Add(this.lblMap);
             this.grpGameConfigRun.Controls.Add(this.cmbMap);
@@ -442,9 +436,7 @@ namespace SteamCMD_GUI
             this.grpGameConfigRun.Controls.Add(this.chkInsecure);
             this.grpGameConfigRun.Controls.Add(this.chkDisableBots);
             this.grpGameConfigRun.Controls.Add(this.chkDevMessages);
-            this.grpGameConfigRun.Controls.Add(this.btnAddProfile);
             this.grpGameConfigRun.Controls.Add(this.btnRunServer);
-            this.grpGameConfigRun.Controls.Add(this.btnSaveProfile);
 
             this.ConsoleTab.Text = "Console";
             this.ConsoleOutput.Location = new System.Drawing.Point(8, 8);
@@ -624,7 +616,8 @@ namespace SteamCMD_GUI
         private System.Windows.Forms.CheckBox chkCustomMod;
         private System.Windows.Forms.Button btnHelp2;
         private System.Windows.Forms.Label lblServerName;
-        private System.Windows.Forms.ComboBox cmbProfiles;
+
+
         private System.Windows.Forms.TextBox txtServerName;
         private System.Windows.Forms.Label lblMap;
         private System.Windows.Forms.ComboBox cmbMap;
@@ -644,11 +637,8 @@ namespace SteamCMD_GUI
         private System.Windows.Forms.CheckBox chkInsecure;
         private System.Windows.Forms.CheckBox chkDisableBots;
         private System.Windows.Forms.CheckBox chkDevMessages;
-        private System.Windows.Forms.Button btnAddProfile;
-        private System.Windows.Forms.Button btnRunServer;
-        private System.Windows.Forms.Button btnSaveProfile;
-
-        private System.Windows.Forms.GroupBox grpTools;
+                private System.Windows.Forms.Button btnRunServer;
+                private System.Windows.Forms.GroupBox grpTools;
         private System.Windows.Forms.Button btnDownloadSteamCMD;
         private System.Windows.Forms.Button btnValveWiki;
         private System.Windows.Forms.Button btnCheckUpdates;

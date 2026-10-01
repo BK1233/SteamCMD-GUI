@@ -12,25 +12,6 @@ using System.Xml.Serialization;
 
 namespace SteamCMD_GUI
 {
-    public class ServerProfile
-    {
-        public string Name { get; set; }
-        public string Game { get; set; }
-        public string Map { get; set; }
-        public string Network { get; set; }
-        public int MaxPlayers { get; set; }
-        public int UdpPort { get; set; }
-        public string RconPassword { get; set; }
-        public bool Secure { get; set; }
-        public bool DebugMode { get; set; }
-        public bool SourceTV { get; set; }
-        public bool ConsoleMode { get; set; }
-        public bool Insecure { get; set; }
-        public bool DisableBots { get; set; }
-        public bool DevMessages { get; set; }
-        public string CustomMod { get; set; }
-    }
-
     public partial class MainMenu : Form
     {
 
@@ -47,7 +28,6 @@ namespace SteamCMD_GUI
         private BackupManager _backupManager = new BackupManager();
         private RCON rconClient;
         private string _loadedConfigPath = "";
-        private List<ServerProfile> _profiles = new List<ServerProfile>();
         private List<string> _customGames = new List<string>();
 
         public MainMenu()
@@ -59,13 +39,13 @@ namespace SteamCMD_GUI
 
             _updateManager.UpdateCheckCompleted += (hasUpdate, appId) => UpdateStatus(hasUpdate ? $"Update available for AppID {appId}" : $"AppID {appId} is up to date");
             _updateManager.UpdateCompleted += appId => UpdateStatus($"Update completed for AppID {appId}");
+            _updateManager.OutputReceived += msg => AppendOutputText(msg);
             _updateManager.ErrorOccurred += msg => UpdateStatus(msg, true);
 
             _backupManager.BackupCreated += msg => UpdateStatus($"Backup created: {msg}");
             _backupManager.BackupRestored += msg => UpdateStatus($"Backup restored: {msg}");
             _backupManager.ErrorOccurred += msg => UpdateStatus(msg, true);
 
-            LoadProfiles();
             LoadCustomGames();
 
             btnSourceMod.Click += (s, e) => Process.Start(new ProcessStartInfo("http://www.sourcemod.net") { UseShellExecute = true });
@@ -76,9 +56,6 @@ namespace SteamCMD_GUI
                 UpdateStatus("Checking for updates...");
                 _updateManager.CheckForUpdates();
             };
-
-            btnAddProfile.Click += BtnAddProfile_Click;
-            btnSaveProfile.Click += BtnSaveProfile_Click;
 
             btnAddCustom.Click += (s, e) => {
                 string input = Microsoft.VisualBasic.Interaction.InputBox("Enter Custom App ID:", "Add Custom Game", "");
@@ -91,28 +68,6 @@ namespace SteamCMD_GUI
             };
         }
 
-        private void cmbProfiles_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var p = _profiles.Find(x => x.Name == cmbProfiles.Text);
-            if (p != null)
-            {
-                cmbGameToRun.Text = p.Game;
-                cmbMap.Text = p.Map;
-                cmbNetwork.Text = p.Network;
-                numMaxPlayers.Value = p.MaxPlayers;
-                numUdpPort.Value = p.UdpPort;
-                txtRcon.Text = p.RconPassword;
-                chkSecure.Checked = p.Secure;
-                chkDebugMode.Checked = p.DebugMode;
-                chkSourceTV.Checked = p.SourceTV;
-                chkConsoleMode.Checked = p.ConsoleMode;
-                chkInsecure.Checked = p.Insecure;
-                chkDisableBots.Checked = p.DisableBots;
-                chkDevMessages.Checked = p.DevMessages;
-                txtCustomMod.Text = p.CustomMod;
-                UpdateStatus($"Profile {p.Name} loaded.");
-            }
-        }
 
         private void LoadCustomGames()
         {
@@ -142,70 +97,9 @@ namespace SteamCMD_GUI
             } catch { }
         }
 
-        private void BtnAddProfile_Click(object sender, EventArgs e)
-        {
-            cmbProfiles.Text = "New Server Profile";
-            cmbGameToRun.Text = "";
-            cmbMap.Text = "";
-            UpdateStatus("Ready to create a new profile. Fill in fields and click Save.");
-        }
 
-        private void BtnSaveProfile_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(cmbProfiles.Text)) return;
-            var p = new ServerProfile
-            {
-                Name = cmbProfiles.Text,
-                Game = cmbGameToRun.Text,
-                Map = cmbMap.Text,
-                Network = cmbNetwork.Text,
-                MaxPlayers = (int)numMaxPlayers.Value,
-                UdpPort = (int)numUdpPort.Value,
-                RconPassword = txtRcon.Text,
-                Secure = chkSecure.Checked,
-                DebugMode = chkDebugMode.Checked,
-                SourceTV = chkSourceTV.Checked,
-                ConsoleMode = chkConsoleMode.Checked,
-                Insecure = chkInsecure.Checked,
-                DisableBots = chkDisableBots.Checked,
-                DevMessages = chkDevMessages.Checked,
-                CustomMod = txtCustomMod.Text
-            };
 
-            _profiles.RemoveAll(x => x.Name == p.Name);
-            _profiles.Add(p);
-            SaveProfiles();
 
-            if (!cmbProfiles.Items.Contains(p.Name)) cmbProfiles.Items.Add(p.Name);
-            UpdateStatus($"Profile {p.Name} saved.");
-        }
-
-        private void SaveProfiles()
-        {
-            try {
-                using (var sw = new StreamWriter("profiles.xml"))
-                {
-                    var xs = new XmlSerializer(typeof(List<ServerProfile>));
-                    xs.Serialize(sw, _profiles);
-                }
-            } catch { }
-        }
-
-        private void LoadProfiles()
-        {
-            if (File.Exists("profiles.xml"))
-            {
-                try {
-                    using (var sr = new StreamReader("profiles.xml"))
-                    {
-                        var xs = new XmlSerializer(typeof(List<ServerProfile>));
-                        _profiles = (List<ServerProfile>)xs.Deserialize(sr);
-                        cmbProfiles.Items.Clear();
-                        foreach(var p in _profiles) cmbProfiles.Items.Add(p.Name);
-                    }
-                } catch { }
-            }
-        }
 
         private async void btnDownloadSteamCMD_Click(object sender, EventArgs e)
         {

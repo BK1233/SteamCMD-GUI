@@ -11,6 +11,7 @@ namespace SteamCMD_GUI
 
         public event Action<bool, string> UpdateCheckCompleted;
         public event Action<string> UpdateCompleted;
+        public event Action<string> OutputReceived;
         public event Action<string> ErrorOccurred;
 
         public UpdateManager(string steamCmdPath)
@@ -42,7 +43,7 @@ namespace SteamCMD_GUI
 
                     Process process = new Process { StartInfo = psi };
                     process.OutputDataReceived += (s, e) => {
-                        if (e.Data != null) ErrorOccurred?.Invoke($"Output: {e.Data}");
+                        if (e.Data != null) OutputReceived?.Invoke(e.Data);
                     };
                     process.ErrorDataReceived += (s, e) => {
                         if (e.Data != null) ErrorOccurred?.Invoke($"Error: {e.Data}");
