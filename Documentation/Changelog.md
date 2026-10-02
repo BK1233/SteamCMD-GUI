@@ -3,6 +3,15 @@
 
 <br>
 
+## 2.0.0
+
+- **Automatic Server Updates:** Added an updates check/installation feature.
+- **Modern Look & Feel:** Updated interface styling and resources.
+- **Persistent Settings:** Added settings management via `appsettings.json` and configuration helpers.
+- **Major C# .NET 8.0 Overhaul:** Re-created application in C# .NET 8.0 Windows Forms with dedicated modules for RCON, Backups, Workshop, Server Management, and Updates.
+
+<br>
+
 ## 3.1.0.2
 
 -	Custom Mod now is saved by XML config ~ By Melo88 @ GitHub

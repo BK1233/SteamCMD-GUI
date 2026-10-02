@@ -31,7 +31,7 @@ namespace SteamCMD_GUI
             this.lblVersion.Name = "lblVersion";
             this.lblVersion.Size = new System.Drawing.Size(46, 15);
             this.lblVersion.TabIndex = 1;
-            this.lblVersion.Text = "C# Port";
+            this.lblVersion.Text = "v2.0.0 (C# Port)";
 
             this.btnOk.Location = new System.Drawing.Point(12, 60);
             this.btnOk.Name = "btnOk";
