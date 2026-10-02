@@ -46,9 +46,9 @@ edit files such as `MOTD` or `maplist` in only a few clicks.
 
 *The following downloads are **Windows** only.*
 
-| GitHub | GameBanana |
-| :---: | :---: |
-| [![Button GitHub]][GitHub] | [![Button GameBanana]][GameBanana] |
+| GitHub |
+| :---: |
+| [![Button GitHub]][GitHub]
 
 </div>
 
@@ -60,7 +60,6 @@ edit files such as `MOTD` or `maplist` in only a few clicks.
 
 [#]: #
 
-[GameBanana]: http://gamebanana.com/tools/5560
 [SteamCMD]: https://developer.valvesoftware.com/wiki/SteamCMD
 [GitHub]: https://github.com/BK1233/SteamCMD-GUI/releases/latest
 
@@ -72,6 +71,5 @@ edit files such as `MOTD` or `maplist` in only a few clicks.
 
 <!---------------------------------[ Buttons ]--------------------------------->
 
-[Button GameBanana]: https://img.shields.io/badge/GameBanana-f6e664?style=for-the-badge&logoColor=black&logo=GitLFS
 [Button Changelog]: https://img.shields.io/badge/Changelog-4285F4?style=for-the-badge&logoColor=white&logo=Git
 [Button GitHub]: https://img.shields.io/badge/GitHub-222222?style=for-the-badge&logoColor=white&logo=GitHub
