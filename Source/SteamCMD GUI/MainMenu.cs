@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -14,6 +15,63 @@ namespace SteamCMD_GUI
 {
     public partial class MainMenu : Form
     {
+        private void ApplyLocalization()
+        {
+            var rm = new System.Resources.ResourceManager("SteamCMD_GUI.Resources.Strings", typeof(MainMenu).Assembly);
+            try
+            {
+                UpdateTab.Text = rm.GetString("Tab_UpdateInstall") ?? "Update/Install";
+                RunServerTab.Text = rm.GetString("Tab_RunServer") ?? "Run Server";
+                ConsoleTab.Text = rm.GetString("Tab_Console") ?? "Console";
+                RconTab.Text = rm.GetString("Tab_Rcon") ?? "RCON";
+                ConfigEditorTab.Text = rm.GetString("Tab_ConfigEditor") ?? "Config Editor";
+                BackupRestoreTab.Text = rm.GetString("Tab_BackupRestore") ?? "Backup / Restore";
+            }
+            catch { }
+        }
+
+        private void txtSteamCmdPath_TextChanged(object sender, EventArgs e)
+        {
+            _updateManager.SetSteamCmdPath(txtSteamCmdPath.Text);
+            var prefs = ConfigManager.Load();
+            prefs.SteamCmdPath = txtSteamCmdPath.Text;
+            ConfigManager.Save(prefs);
+        }
+
+        private void btnOpenFolder_Click(object sender, EventArgs e)
+        {
+            if (Directory.Exists(txtSrcdsPath.Text))
+            {
+                Process.Start("explorer.exe", txtSrcdsPath.Text);
+            }
+        }
+
+        private void btnHelp1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Select the game you wish to install. If your game is not listed, use the Custom Mod option.", "Help");
+        }
+
+        private void btnHelp2_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Select the game to run. Ensure the path to the srcds.exe is correct.", "Help");
+        }
+
+        private void chkCustomMod_CheckedChanged(object sender, EventArgs e)
+        {
+            txtCustomMod.Enabled = chkCustomMod.Checked;
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void clearLogsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ConsoleOutput.Clear();
+            UpdateStatus("Console logs cleared.");
+        }
+
 
         private void btnConsoleSend_Click(object sender, EventArgs e)
         {
@@ -47,6 +105,19 @@ namespace SteamCMD_GUI
             _backupManager.ErrorOccurred += msg => UpdateStatus(msg, true);
 
             LoadCustomGames();
+            ApplyLocalization();
+            var prefs = ConfigManager.Load();
+            txtSteamCmdPath.Text = prefs.SteamCmdPath;
+            txtInstallDir.Text = prefs.InstallDirectory;
+            txtSrcdsPath.Text = prefs.SrcdsDirectory;
+            _updateManager.SetSteamCmdPath(prefs.SteamCmdPath);
+
+            if (!File.Exists(prefs.SteamCmdPath))
+            {
+                UpdateStatus("SteamCMD not found. Auto-installing...");
+                btnDownloadSteamCMD_Click(null, null);
+            }
+
 
             btnSourceMod.Click += (s, e) => Process.Start(new ProcessStartInfo("http://www.sourcemod.net") { UseShellExecute = true });
             btnMetamod.Click += (s, e) => Process.Start(new ProcessStartInfo("http://www.metamodsource.net") { UseShellExecute = true });
@@ -113,7 +184,11 @@ namespace SteamCMD_GUI
                         await response.Content.CopyToAsync(fs);
                     }
                 }
-                UpdateStatus("Download complete. Extract steamcmd.zip");
+                UpdateStatus("Download complete. Extracting steamcmd.zip...");
+                if (File.Exists("steamcmd.exe")) File.Delete("steamcmd.exe");
+                ZipFile.ExtractToDirectory("steamcmd.zip", Directory.GetCurrentDirectory());
+                File.Delete("steamcmd.zip");
+                UpdateStatus("Extraction complete. SteamCMD is ready!");
             } catch (Exception ex) {
                 UpdateStatus("Download failed: " + ex.Message, true);
             }
@@ -130,9 +205,13 @@ namespace SteamCMD_GUI
             else if (gameName == "Garry's Mod") appId = "4020";
             else if (gameName == "Half-Life Deathmatch: Source") appId = "255470";
             else if (gameName == "Left 4 Dead 2") appId = "222860";
+            else if (gameName == "Team Fortress 2 Classic") appId = "244310"; // Source SDK Base 2013 Dedicated Server
             else appId = gameName; // In case it's a custom numeric appID
 
             _updateManager.SetSteamCmdPath(txtSteamCmdPath.Text);
+            var prefs = ConfigManager.Load();
+            prefs.SteamCmdPath = txtSteamCmdPath.Text;
+            ConfigManager.Save(prefs);
             UpdateStatus($"Updating server (AppId: {appId}) to {txtInstallDir.Text}...");
 
 
@@ -142,7 +221,7 @@ namespace SteamCMD_GUI
 
             string args = $"{loginArg} +force_install_dir \"{txtInstallDir.Text}\" +app_update {appId}{validateArg} +quit";
 
-            _updateManager.UpdateServerWithArgs(args, appId);
+            _updateManager.UpdateServerWithArgs(args, txtInstallDir.Text, appId);
         }
 
         private void btnStartServer_Click(object sender, EventArgs e)
@@ -159,9 +238,17 @@ namespace SteamCMD_GUI
             else if (selectedGame == "Day of Defeat: Source") gameMod = "dod";
             else if (selectedGame == "Alien Swarm") gameMod = "swarm";
             else if (selectedGame == "Counter-Strike: Global Offensive") gameMod = "csgo";
+            else if (selectedGame == "Team Fortress 2 Classic") gameMod = "tf2classic";
             else gameMod = selectedGame; // Custom user input
 
+
+            if (chkCustomMod.Checked && !string.IsNullOrWhiteSpace(txtCustomMod.Text))
+            {
+                gameMod = txtCustomMod.Text;
+            }
+
             string args = $"-console -game {gameMod} +maxplayers {numMaxPlayers.Value} +map {cmbMap.Text} -port {numUdpPort.Value} +rcon_password \"{txtRcon.Text}\"";
+
 
 
             if (chkInsecure.Checked) args += " -insecure";
@@ -281,6 +368,9 @@ namespace SteamCMD_GUI
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
                     txtInstallDir.Text = fbd.SelectedPath;
+                    var prefs = ConfigManager.Load();
+                    prefs.InstallDirectory = txtInstallDir.Text;
+                    ConfigManager.Save(prefs);
                 }
             }
         }
@@ -292,6 +382,9 @@ namespace SteamCMD_GUI
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
                     txtSrcdsPath.Text = fbd.SelectedPath;
+                    var prefs = ConfigManager.Load();
+                    prefs.SrcdsDirectory = txtSrcdsPath.Text;
+                    ConfigManager.Save(prefs);
                 }
             }
         }

@@ -149,6 +149,33 @@ namespace SteamCMD_GUI
 
             this.fileToolStripMenuItem.Text = "File";
             this.editToolStripMenuItem.Text = "Edit";
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { this.loadConfigToolStripMenuItem, this.saveConfigToolStripMenuItem, this.exitToolStripMenuItem });
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.loadConfigToolStripMenuItem.Text = "Load Configuration";
+            this.loadConfigToolStripMenuItem.Click += new System.EventHandler(this.btnOpenConfig_Click);
+            this.saveConfigToolStripMenuItem.Text = "Save Configuration";
+            this.saveConfigToolStripMenuItem.Click += new System.EventHandler(this.btnSaveConfig_Click);
+
+            this.motdToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mapcycleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { this.motdToolStripMenuItem, this.mapcycleToolStripMenuItem });
+            this.motdToolStripMenuItem.Text = "Motd.txt";
+            this.motdToolStripMenuItem.Click += new System.EventHandler(this.btnOpenConfig_Click);
+            this.mapcycleToolStripMenuItem.Text = "Mapcycle.txt";
+            this.mapcycleToolStripMenuItem.Click += new System.EventHandler(this.btnOpenConfig_Click);
+
+
+
+
+
+
+
             this.helpToolStripMenuItem.Text = "Help";
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { this.aboutToolStripMenuItem, this.commandsToolStripMenuItem });
             this.aboutToolStripMenuItem.Text = "About";
@@ -200,10 +227,12 @@ namespace SteamCMD_GUI
             this.cmbGameToInstall.Items.Add("Garry's Mod");
             this.cmbGameToInstall.Items.Add("Half-Life Deathmatch: Source");
             this.cmbGameToInstall.Items.Add("Left 4 Dead 2");
+            this.cmbGameToInstall.Items.Add("Team Fortress 2 Classic");
 
             this.btnAddCustom.Text = "Add Custom";
             this.btnAddCustom.Location = new System.Drawing.Point(296, 20);
             this.btnHelp1.Text = "?";
+            this.btnHelp1.Click += new System.EventHandler(this.btnHelp1_Click);
             this.btnHelp1.Location = new System.Drawing.Point(376, 20);
             this.btnHelp1.Size = new System.Drawing.Size(25, 23);
 
@@ -311,6 +340,7 @@ namespace SteamCMD_GUI
             this.btnBrowseSrcds.Location = new System.Drawing.Point(346, 18);
             this.btnBrowseSrcds.Click += new System.EventHandler(this.btnBrowseSrcds_Click);
             this.btnOpenFolder.Text = "O";
+            this.btnOpenFolder.Click += new System.EventHandler(this.btnOpenFolder_Click);
             this.btnOpenFolder.Location = new System.Drawing.Point(426, 18);
             this.btnOpenFolder.Size = new System.Drawing.Size(25, 23);
 
@@ -338,12 +368,15 @@ namespace SteamCMD_GUI
             this.cmbGameToRun.Items.Add("Day of Defeat: Source");
             this.cmbGameToRun.Items.Add("Alien Swarm");
             this.cmbGameToRun.Items.Add("Counter-Strike: Global Offensive");
+            this.cmbGameToRun.Items.Add("Team Fortress 2 Classic");
 
             this.txtCustomMod.Location = new System.Drawing.Point(216, 48);
             this.txtCustomMod.Size = new System.Drawing.Size(80, 20);
             this.chkCustomMod.Text = "Custom Mod";
+            this.chkCustomMod.CheckedChanged += new System.EventHandler(this.chkCustomMod_CheckedChanged);
             this.chkCustomMod.Location = new System.Drawing.Point(300, 50);
             this.btnHelp2.Text = "?";
+            this.btnHelp2.Click += new System.EventHandler(this.btnHelp2_Click);
             this.btnHelp2.Location = new System.Drawing.Point(400, 48);
             this.btnHelp2.Size = new System.Drawing.Size(25, 23);
 
@@ -398,6 +431,7 @@ namespace SteamCMD_GUI
             this.chkSourceTV.Location = new System.Drawing.Point(120, 186);
             this.chkConsoleMode.Text = "Console Mode";
             this.chkConsoleMode.Location = new System.Drawing.Point(220, 186);
+            this.chkConsoleMode.AutoSize = true;
             this.chkConsoleMode.Checked = true;
 
             this.chkInsecure.Text = "Insecure";
@@ -406,6 +440,7 @@ namespace SteamCMD_GUI
             this.chkDisableBots.Location = new System.Drawing.Point(120, 211);
             this.chkDevMessages.Text = "Dev Messages";
             this.chkDevMessages.Location = new System.Drawing.Point(220, 211);
+            this.chkDevMessages.AutoSize = true;
 
             this.btnRunServer.Text = "Run Server";
             this.btnRunServer.Location = new System.Drawing.Point(350, 206);
@@ -576,6 +611,11 @@ namespace SteamCMD_GUI
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem commandsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadConfigToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveConfigToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem motdToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem mapcycleToolStripMenuItem;
         private System.Windows.Forms.TabControl TabMenu;
         private System.Windows.Forms.TabPage UpdateTab;
         private System.Windows.Forms.TabPage RunServerTab;

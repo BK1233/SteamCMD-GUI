@@ -12,10 +12,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Tab_UpdateInstall" xml:space="preserve"><value>Actualizar/Instalar</value></data>
-  <data name="Tab_RunServer" xml:space="preserve"><value>Iniciar Servidor</value></data>
-  <data name="Tab_Console" xml:space="preserve"><value>Consola</value></data>
+  <data name="Tab_UpdateInstall" xml:space="preserve"><value>Update/Install</value></data>
+  <data name="Tab_RunServer" xml:space="preserve"><value>Run Server</value></data>
+  <data name="Tab_Console" xml:space="preserve"><value>Console</value></data>
   <data name="Tab_Rcon" xml:space="preserve"><value>RCON</value></data>
-  <data name="Tab_ConfigEditor" xml:space="preserve"><value>Editor de Config</value></data>
-  <data name="Tab_BackupRestore" xml:space="preserve"><value>Respaldo / Restaurar</value></data>
+  <data name="Tab_ConfigEditor" xml:space="preserve"><value>Config Editor</value></data>
+  <data name="Tab_BackupRestore" xml:space="preserve"><value>Backup / Restore</value></data>
 </root>
