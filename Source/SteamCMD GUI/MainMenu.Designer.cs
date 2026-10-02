@@ -431,6 +431,7 @@ namespace SteamCMD_GUI
             this.chkSourceTV.Location = new System.Drawing.Point(120, 186);
             this.chkConsoleMode.Text = "Console Mode";
             this.chkConsoleMode.Location = new System.Drawing.Point(220, 186);
+            this.chkConsoleMode.AutoSize = true;
             this.chkConsoleMode.Checked = true;
 
             this.chkInsecure.Text = "Insecure";
@@ -439,6 +440,7 @@ namespace SteamCMD_GUI
             this.chkDisableBots.Location = new System.Drawing.Point(120, 211);
             this.chkDevMessages.Text = "Dev Messages";
             this.chkDevMessages.Location = new System.Drawing.Point(220, 211);
+            this.chkDevMessages.AutoSize = true;
 
             this.btnRunServer.Text = "Run Server";
             this.btnRunServer.Location = new System.Drawing.Point(350, 206);
