@@ -258,7 +258,7 @@ namespace SteamCMD_GUI
             if (File.Exists(exe))
             {
                 _serverManager.StartServer(exe, args);
-                UpdateStatus($"Starting server with args: {args}");
+                UpdateStatus($"Starting server with args: {ArgumentSanitizer.Sanitize(args)}");
             } else {
                 UpdateStatus($"Error: Server executable not found at: {exe}", true);
             }
