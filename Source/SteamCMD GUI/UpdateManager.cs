@@ -52,7 +52,7 @@ namespace SteamCMD_GUI
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
                     process.WaitForExit();
-                    DownloadCommunityMod(contextId, installDir);
+                    _ = DownloadCommunityMod(contextId, installDir);
                 }
                 catch (Exception ex)
                 {
@@ -62,7 +62,7 @@ namespace SteamCMD_GUI
         }
 
 
-        public async void DownloadCommunityMod(string modName, string installDir)
+        public async Task DownloadCommunityMod(string modName, string installDir)
         {
             if (modName == "244310") // TF2C AppID context
             {
@@ -86,20 +86,23 @@ namespace SteamCMD_GUI
                     }
 
                     OutputReceived?.Invoke("Extracting TF2C files into: " + installDir);
-                    if (Directory.Exists(Path.Combine(installDir, "tf2classic")))
+                    await Task.Run(() =>
                     {
-                        Directory.Delete(Path.Combine(installDir, "tf2classic"), true);
-                    }
+                        if (Directory.Exists(Path.Combine(installDir, "tf2classic")))
+                        {
+                            Directory.Delete(Path.Combine(installDir, "tf2classic"), true);
+                        }
 
-                    System.IO.Compression.ZipFile.ExtractToDirectory(zipPath, installDir);
-                    File.Delete(zipPath);
+                        System.IO.Compression.ZipFile.ExtractToDirectory(zipPath, installDir);
+                        File.Delete(zipPath);
 
-                    // The github master branch extracts to "TF2-Classic-master", we must rename it to "tf2classic"
-                    string extractedDir = Path.Combine(installDir, "TF2-Classic-master");
-                    if (Directory.Exists(extractedDir))
-                    {
-                        Directory.Move(extractedDir, Path.Combine(installDir, "tf2classic"));
-                    }
+                        // The github master branch extracts to "TF2-Classic-master", we must rename it to "tf2classic"
+                        string extractedDir = Path.Combine(installDir, "TF2-Classic-master");
+                        if (Directory.Exists(extractedDir))
+                        {
+                            Directory.Move(extractedDir, Path.Combine(installDir, "tf2classic"));
+                        }
+                    });
 
                     OutputReceived?.Invoke("TF2C successfully installed!");
                     UpdateCompleted?.Invoke("TF2C");

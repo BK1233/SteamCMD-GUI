@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Compile Include="..\SteamCMD GUI\ArgumentSanitizer.cs" Link="ArgumentSanitizer.cs" />
+    <Compile Include="..\SteamCMD GUI\UpdateManager.cs" Link="UpdateManager.cs" />
   </ItemGroup>
 
   <ItemGroup>
