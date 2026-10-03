@@ -153,7 +153,9 @@ namespace SteamCMD_GUI
                             if (!cmbGameToInstall.Items.Contains(g)) cmbGameToInstall.Items.Add(g);
                         }
                     }
-                } catch { }
+                } catch (Exception ex) {
+                    UpdateStatus($"Error loading custom games: {ex.Message}", true);
+                }
             }
         }
 
@@ -165,7 +167,9 @@ namespace SteamCMD_GUI
                     var xs = new XmlSerializer(typeof(List<string>));
                     xs.Serialize(sw, _customGames);
                 }
-            } catch { }
+            } catch (Exception ex) {
+                UpdateStatus($"Error saving custom games: {ex.Message}", true);
+            }
         }
 
 
