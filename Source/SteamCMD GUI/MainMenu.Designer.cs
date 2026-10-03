@@ -401,6 +401,8 @@ namespace SteamCMD_GUI
             this.cmbNetwork.Location = new System.Drawing.Point(90, 126);
             this.cmbNetwork.Size = new System.Drawing.Size(120, 21);
             this.cmbNetwork.Text = "Internet";
+            this.cmbNetwork.Items.Add("Internet");
+            this.cmbNetwork.Items.Add("LAN");
 
             this.lblMaxPlayers.Text = "Max Players";
             this.lblMaxPlayers.Location = new System.Drawing.Point(220, 128);

@@ -273,7 +273,8 @@ namespace SteamCMD_GUI
 
             string gameMod = MapManager.GetGameMod(cmbGameToRun.Text, chkCustomMod.Checked, txtCustomMod.Text);
 
-            string args = $"-console -game {gameMod} +maxplayers {numMaxPlayers.Value} +map {cmbMap.Text} -port {numUdpPort.Value} +rcon_password \"{txtRcon.Text}\"";
+            string svLanFlag = cmbNetwork.Text == "LAN" ? " +sv_lan 1" : " +sv_lan 0";
+            string args = $"-console -game {gameMod} +maxplayers {numMaxPlayers.Value} +map {cmbMap.Text} -port {numUdpPort.Value} +rcon_password \"{txtRcon.Text}\"{svLanFlag}";
 
 
 
