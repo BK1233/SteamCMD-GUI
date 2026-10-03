@@ -62,6 +62,14 @@ namespace SteamCMD_GUI
             Application.Exit();
         }
 
+        private void txtSteamCmdPath_TextChanged(object sender, EventArgs e)
+        {
+            _updateManager.SetSteamCmdPath(txtSteamCmdPath.Text);
+            var prefs = ConfigManager.Load();
+            prefs.SteamCmdPath = txtSteamCmdPath.Text;
+            ConfigManager.SaveDebounced(prefs);
+        }
+
         private void btnConsoleSend_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(txtConsoleInput.Text))
