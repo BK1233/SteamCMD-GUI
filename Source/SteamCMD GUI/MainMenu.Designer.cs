@@ -207,6 +207,7 @@ namespace SteamCMD_GUI
             this.txtSteamCmdPath.Location = new System.Drawing.Point(100, 20);
             this.txtSteamCmdPath.Size = new System.Drawing.Size(270, 20);
             this.txtSteamCmdPath.Text = "steamcmd.exe";
+            this.txtSteamCmdPath.TextChanged += new System.EventHandler(this.txtSteamCmdPath_TextChanged);
             this.btnBrowseSteamCmd.Text = "Browser";
             this.btnBrowseSteamCmd.Location = new System.Drawing.Point(376, 18);
             this.btnBrowseSteamCmd.Click += new System.EventHandler(this.btnBrowseSteamCmd_Click);
