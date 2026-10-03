@@ -27,7 +27,11 @@ namespace SteamCMD_GUI
                 ConfigEditorTab.Text = rm.GetString("Tab_ConfigEditor") ?? "Config Editor";
                 BackupRestoreTab.Text = rm.GetString("Tab_BackupRestore") ?? "Backup / Restore";
             }
-            catch { }
+            catch (Exception ex)
+            {
+                UpdateStatus($"Failed to apply localization: {ex.Message}", true);
+                System.Diagnostics.Debug.WriteLine(ex);
+            }
         }
 
         private void txtSteamCmdPath_TextChanged(object sender, EventArgs e)
