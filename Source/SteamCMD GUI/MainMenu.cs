@@ -118,9 +118,9 @@ namespace SteamCMD_GUI
             }
 
 
-            btnSourceMod.Click += (s, e) => Process.Start(new ProcessStartInfo("http://www.sourcemod.net") { UseShellExecute = true });
-            btnMetamod.Click += (s, e) => Process.Start(new ProcessStartInfo("http://www.metamodsource.net") { UseShellExecute = true });
-            btnEventScripts.Click += (s, e) => Process.Start(new ProcessStartInfo("http://www.eventscripts.com") { UseShellExecute = true });
+            btnSourceMod.Click += (s, e) => Process.Start(new ProcessStartInfo("https://www.sourcemod.net") { UseShellExecute = true });
+            btnMetamod.Click += (s, e) => Process.Start(new ProcessStartInfo("https://www.metamodsource.net") { UseShellExecute = true });
+            btnEventScripts.Click += (s, e) => Process.Start(new ProcessStartInfo("https://www.eventscripts.com") { UseShellExecute = true });
             btnValveWiki.Click += (s, e) => Process.Start(new ProcessStartInfo("https://developer.valvesoftware.com/wiki/Main_Page") { UseShellExecute = true });
             btnCheckUpdates.Click += (s, e) => {
                 UpdateStatus("Checking for updates...");

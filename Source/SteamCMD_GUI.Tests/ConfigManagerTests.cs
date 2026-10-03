@@ -5,7 +5,7 @@ using Xunit;
 
 namespace SteamCMD_GUI.Tests
 {
-    [Collection("ConfigTests")]
+    [Collection("ConfigManagerTests")]
     public class ConfigManagerTests
     {
         private sealed class TempDirectoryContext : IDisposable
