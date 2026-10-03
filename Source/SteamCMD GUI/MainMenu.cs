@@ -34,14 +34,6 @@ namespace SteamCMD_GUI
             }
         }
 
-        private void txtSteamCmdPath_TextChanged(object sender, EventArgs e)
-        {
-            _updateManager.SetSteamCmdPath(txtSteamCmdPath.Text);
-            var prefs = ConfigManager.Load();
-            prefs.SteamCmdPath = txtSteamCmdPath.Text;
-            ConfigManager.Save(prefs);
-        }
-
         private void btnOpenFolder_Click(object sender, EventArgs e)
         {
             if (Directory.Exists(txtSrcdsPath.Text))
