@@ -66,13 +66,6 @@ namespace SteamCMD_GUI
             Application.Exit();
         }
 
-        private void clearLogsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ConsoleOutput.Clear();
-            UpdateStatus("Console logs cleared.");
-        }
-
-
         private void btnConsoleSend_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(txtConsoleInput.Text))
