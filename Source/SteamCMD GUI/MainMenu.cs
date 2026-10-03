@@ -222,10 +222,12 @@ namespace SteamCMD_GUI
 
 
 
-            string loginArg = chkLoginAnonymous.Checked ? "+login anonymous" : $"+login {txtLogin.Text} {txtPassword.Text}";
+            string loginArg = chkLoginAnonymous.Checked
+                ? "+login anonymous"
+                : $"+login {ArgumentSanitizer.EscapeArgument(txtLogin.Text)} {ArgumentSanitizer.EscapeArgument(txtPassword.Text)}";
             string validateArg = chkValidate.Checked ? " validate" : "";
 
-            string args = $"{loginArg} +force_install_dir \"{txtInstallDir.Text}\" +app_update {appId}{validateArg} +quit";
+            string args = $"{loginArg} +force_install_dir {ArgumentSanitizer.EscapeArgument(txtInstallDir.Text)} +app_update {ArgumentSanitizer.EscapeArgument(appId)}{validateArg} +quit";
 
             _updateManager.UpdateServerWithArgs(args, txtInstallDir.Text, appId);
         }
