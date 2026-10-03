@@ -21,6 +21,7 @@
     <Compile Include="..\SteamCMD GUI\ArgumentSanitizer.cs" Link="ArgumentSanitizer.cs" />
     <Compile Include="..\SteamCMD GUI\AppConfig.cs" Link="AppConfig.cs" />
     <Compile Include="..\SteamCMD GUI\BackupManager.cs" Link="BackupManager.cs" />
+    <Compile Include="..\SteamCMD GUI\MapManager.cs" Link="MapManager.cs" />
   </ItemGroup>
 
   <ItemGroup>
