@@ -76,5 +76,30 @@ namespace SteamCMD_GUI.Tests
 
             Assert.Equal(input, result);
         }
+
+        [Theory]
+        [InlineData("simpleUser", "\"simpleUser\"")]
+        [InlineData("user name", "\"user name\"")]
+        [InlineData("user\"inj", "\"user\\\"inj\"")]
+        [InlineData("pass\" +quit +app_update 740", "\"pass\\\" +quit +app_update 740\"")]
+        [InlineData("C:\\Program Files\\Server\\", "\"C:\\Program Files\\Server\\\\\"")]
+        [InlineData("", "\"\"")]
+        [InlineData(null, "\"\"")]
+        public void EscapeArgument_EscapesSpecialCharactersCorrectly(string? input, string expected)
+        {
+            string result = ArgumentSanitizer.EscapeArgument(input);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void Sanitize_RedactsEscapedQuotedLoginPassword()
+        {
+            string input = "+login \"user\\\"name\" \"pass\\\"word\" +force_install_dir \"C:\\\\server\"";
+            string expected = "+login \"user\\\"name\" \"[REDACTED]\" +force_install_dir \"C:\\\\server\"";
+
+            string? result = ArgumentSanitizer.Sanitize(input);
+
+            Assert.Equal(expected, result);
+        }
     }
 }
