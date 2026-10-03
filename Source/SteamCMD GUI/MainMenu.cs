@@ -180,9 +180,12 @@ namespace SteamCMD_GUI
                     }
                 }
                 UpdateStatus("Download complete. Extracting steamcmd.zip...");
-                if (File.Exists("steamcmd.exe")) File.Delete("steamcmd.exe");
-                ZipFile.ExtractToDirectory("steamcmd.zip", Directory.GetCurrentDirectory());
-                File.Delete("steamcmd.zip");
+                await Task.Run(() =>
+                {
+                    if (File.Exists("steamcmd.exe")) File.Delete("steamcmd.exe");
+                    ZipFile.ExtractToDirectory("steamcmd.zip", Directory.GetCurrentDirectory());
+                    File.Delete("steamcmd.zip");
+                });
                 UpdateStatus("Extraction complete. SteamCMD is ready!");
             } catch (Exception ex) {
                 UpdateStatus("Download failed: " + ex.Message, true);
