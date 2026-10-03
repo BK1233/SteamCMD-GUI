@@ -81,6 +81,8 @@ namespace SteamCMD_GUI
                 txtConsoleInput.Clear();
             }
         }
+        private const string CustomGamesFileName = "custom_games.xml";
+
         private ServerManager _serverManager = new ServerManager();
         private UpdateManager _updateManager = new UpdateManager("steamcmd.exe");
         private BackupManager _backupManager = new BackupManager();
@@ -142,10 +144,10 @@ namespace SteamCMD_GUI
 
         private void LoadCustomGames()
         {
-            if (File.Exists("custom_games.xml"))
+            if (File.Exists(CustomGamesFileName))
             {
                 try {
-                    using (var sr = new StreamReader("custom_games.xml"))
+                    using (var sr = new StreamReader(CustomGamesFileName))
                     {
                         var xs = new XmlSerializer(typeof(List<string>));
                         _customGames = (List<string>)xs.Deserialize(sr);
@@ -160,7 +162,7 @@ namespace SteamCMD_GUI
         private void SaveCustomGames()
         {
             try {
-                using (var sw = new StreamWriter("custom_games.xml"))
+                using (var sw = new StreamWriter(CustomGamesFileName))
                 {
                     var xs = new XmlSerializer(typeof(List<string>));
                     xs.Serialize(sw, _customGames);
