@@ -55,6 +55,34 @@ namespace SteamCMD_GUI
         private void chkCustomMod_CheckedChanged(object sender, EventArgs e)
         {
             txtCustomMod.Enabled = chkCustomMod.Checked;
+            RefreshMapList();
+        }
+
+        private void RefreshMapList()
+        {
+            string gameMod = MapManager.GetGameMod(cmbGameToRun.Text, chkCustomMod.Checked, txtCustomMod.Text);
+            var maps = MapManager.GetAvailableMaps(txtSrcdsPath.Text, gameMod);
+
+            string currentSelection = cmbMap.Text;
+            cmbMap.Items.Clear();
+
+            foreach (var map in maps)
+            {
+                cmbMap.Items.Add(map);
+            }
+
+            if (cmbMap.Items.Contains(currentSelection))
+            {
+                cmbMap.Text = currentSelection;
+            }
+            else if (cmbMap.Items.Count > 0)
+            {
+                cmbMap.SelectedIndex = 0;
+            }
+            else
+            {
+                cmbMap.Text = "";
+            }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -136,6 +164,13 @@ namespace SteamCMD_GUI
                     SaveCustomGames();
                 }
             };
+
+            cmbGameToRun.SelectedIndexChanged += (s, e) => RefreshMapList();
+            cmbGameToRun.TextChanged += (s, e) => RefreshMapList();
+            txtSrcdsPath.TextChanged += (s, e) => RefreshMapList();
+            txtCustomMod.TextChanged += (s, e) => RefreshMapList();
+
+            RefreshMapList();
         }
 
 
@@ -236,24 +271,7 @@ namespace SteamCMD_GUI
         {
             string exe = Path.Combine(txtSrcdsPath.Text, "srcds.exe");
 
-            string selectedGame = cmbGameToRun.Text;
-            string gameMod = "cstrike";
-            if (selectedGame == "Team Fortress 2") gameMod = "tf";
-            else if (selectedGame == "Garry's Mod") gameMod = "garrysmod";
-            else if (selectedGame == "Half-Life 2: Deathmatch") gameMod = "hl2mp";
-            else if (selectedGame == "Left 4 Dead") gameMod = "left4dead";
-            else if (selectedGame == "Left 4 Dead 2") gameMod = "left4dead2";
-            else if (selectedGame == "Day of Defeat: Source") gameMod = "dod";
-            else if (selectedGame == "Alien Swarm") gameMod = "swarm";
-            else if (selectedGame == "Counter-Strike: Global Offensive") gameMod = "csgo";
-            else if (selectedGame == "Team Fortress 2 Classic") gameMod = "tf2classic";
-            else gameMod = selectedGame; // Custom user input
-
-
-            if (chkCustomMod.Checked && !string.IsNullOrWhiteSpace(txtCustomMod.Text))
-            {
-                gameMod = txtCustomMod.Text;
-            }
+            string gameMod = MapManager.GetGameMod(cmbGameToRun.Text, chkCustomMod.Checked, txtCustomMod.Text);
 
             string args = $"-console -game {gameMod} +maxplayers {numMaxPlayers.Value} +map {cmbMap.Text} -port {numUdpPort.Value} +rcon_password \"{txtRcon.Text}\"";
 
