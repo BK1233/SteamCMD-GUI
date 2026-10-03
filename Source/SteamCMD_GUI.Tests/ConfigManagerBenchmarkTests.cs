@@ -5,6 +5,7 @@ using Xunit.Abstractions;
 
 namespace SteamCMD_GUI.Tests
 {
+    [Collection("ConfigManagerTests")]
     public class ConfigManagerBenchmarkTests
     {
         private readonly ITestOutputHelper _output;
